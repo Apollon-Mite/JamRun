@@ -6,3 +6,30 @@
   width: 100vw;
   background-color: rgb(168, 88, 88);
 }
+
+
+.obstacle {
+  position: absolute;
+  bottom: 100px;
+  right: 0;
+  height: 30px;
+  width: 25px;
+  background-color: rgb(152, 222, 135);
+  animation: objectMove 4s linear infinite;
+}
+
+.obstacle2 {
+  position: absolute;
+  bottom: 100px;
+  right: 0;
+  height: 30px;
+  width: 25px;
+  background-color: rgb(189, 123, 38);
+  animation: objectMove 3s 1s linear infinite;
+}
+
+@keyframes objectMove {
+  100% {
+    right: 1300px;
+  }
+}

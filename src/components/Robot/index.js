@@ -4,7 +4,7 @@ import './styles.scss';
 
 const Robot = () => {
   let jumping = false;
-  let left = 0;
+  // let left = 0;
   // Keyboard input with customisable repeat (set to 0 for no key repeat)
   //
   const KeyboardController = (keys, repeat) => {
@@ -49,8 +49,9 @@ const Robot = () => {
     37: function() { goLeft()},
     38: function() { goJump()},
     39: function() { goRight()},
-    32: function() { goJump()}
-  }, 200);
+    32: function() { goJump()},
+  }, 50);
+  // 200 originally, (works best with 50)
 
   /// /////////////////////////////
 
@@ -66,7 +67,7 @@ const Robot = () => {
       setTimeout(() => {
         robot.style.animationName = 'none';
         jumping = false;
-      }, 1000);
+      }, 950);
     }
   };
 
@@ -74,29 +75,23 @@ const Robot = () => {
     const robot = document.querySelector('.robot');
     const screenWidth = window.innerWidth;
 
-    // const leftPx = robot.style.left;
-    // const left = leftPx.split('px')[0];
+    const leftPx = robot.style.left;
+    const left = leftPx.split('px')[0];
 
-    if (screenWidth - left > 30) { // s'il reste au moins 30px à droite on peut continuer
-      console.log(left);
-      left += 30;
-      console.log(left);
-      // robot.style.left = newLeft;
-      robot.style.transform = `translateX(${left}px)`;
+    if (screenWidth - left > 30) {
+      const newLeft = `${parseInt(left, 10) + 30}px`;
+      robot.style.left = newLeft;
     }
   };
 
   const goLeft = () => {
     const robot = document.querySelector('.robot');
-    // const leftPx = robot.style.left;
-    // const left = leftPx.split('px')[0];
+    const leftPx = robot.style.left;
+    const left = leftPx.split('px')[0];
 
-    if (left >= 0) { // s'il reste au moins 30px à droite on peut continuer
-      console.log(left);
-      left -= 30;
-      console.log(left);
-      // robot.style.left = newLeft;
-      robot.style.transform = `translateX(${left}px)`;
+    if (left >= 0) {
+      const newLeft = `${parseInt(left, 10) - 30}px`;
+      robot.style.left = newLeft;
     }
   };
 
