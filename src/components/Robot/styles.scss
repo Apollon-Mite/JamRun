@@ -1,0 +1,26 @@
+.robot {
+  display: flex;
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  bottom: 100px;
+  background-color: orange;
+  border-radius: 10px;
+  animation-duration: 1s;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+  transition: all .4s;
+  // animation: jump 1s linear infinite;
+}
+
+@keyframes jump {
+  50% {
+    bottom: 250px;
+    // transform: rotate(+45deg);
+  }
+
+  100% {
+    bottom: 100px;
+    // transform: rotate(+90deg);
+  }
+}
