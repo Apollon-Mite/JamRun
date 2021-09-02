@@ -5,7 +5,7 @@ import './styles.scss';
 const Field = () => (
   <div className="field">
     <div className="obstacle" />
-    <div className="obstacle2" />
+    {/* <div className="obstacle2" /> */}
   </div>
 );
 

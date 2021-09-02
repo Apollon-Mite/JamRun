@@ -1,10 +1,9 @@
 import React, { useEffect } from 'react';
-
 import './styles.scss';
 
 const Robot = () => {
   let jumping = false;
-  // let left = 0;
+
   // Keyboard input with customisable repeat (set to 0 for no key repeat)
   //
   const KeyboardController = (keys, repeat) => {
@@ -53,8 +52,6 @@ const Robot = () => {
   }, 50);
   // 200 originally, (works best with 50)
 
-  /// /////////////////////////////
-
   const goJump = () => {
     const robot = document.querySelector('.robot');
     if (jumping === true) {
@@ -95,63 +92,48 @@ const Robot = () => {
     }
   };
 
-  // const jump = (evt) => {
-  //   // const robot = document.querySelector('.robot');
+  const runningAnimation = () => {
+    const robot = document.querySelector('.robot');
+    for (let i = 1; i <= 14; i += 1) {
+      setTimeout(() => {
+        robot.className = `robot run${i}`;
+        if (i === 14) {
+          runningAnimation();
+        }
+      }, 50 * (i)); // picture changes every 50ms
+    }
+  };
 
-  //   if (evt.code === 'Space' || evt.code === 'ArrowUp') {
-  //     if (jumping === true) {
-  //       console.log("can't jump");
-  //     }
+  const detectCollision = () => {
+    const robotElement = document.querySelector('.robot');
+    const obstacleElement = document.querySelector('.obstacle');
 
-  //     else {
-  //       robot.style.animationName = 'jump';
-  //       jumping = true;
+    for (let i = 1; i <= 30000; i += 1) {
+      setTimeout(() => {
+        const robotPosition = robotElement.getBoundingClientRect();
+        const obstaclePosition = obstacleElement.getBoundingClientRect();
+        const difference = robotPosition.right - obstaclePosition.left;
+        console.log(difference);
 
-  //       setTimeout(() => {
-  //         robot.style.animationName = 'none';
-  //         jumping = false;
-  //       }, 1000);
-  //     }
-  //   }
+        if (i === 14) {
+          detectCollision();
+        }
+      }, 50 * (i)); // picture changes every 50ms
+    }
+  }
 
-  //   if (evt.code === 'ArrowRight') {
-  //     const screenWidth = window.innerWidth;
+  useEffect(() => {
+    runningAnimation();
+    detectCollision();
+  }, []);
 
-  //     const leftPx = robot.style.left;
-  //     const left = leftPx.split('px')[0];
 
-  //     if (screenWidth - left > 30) { // s'il reste au moins 30px à droite on peut continuer
-  //       const newLeft = `${parseInt(left, 10) + 30}px`;
-  //       console.log(newLeft);
-  //       robot.style.left = newLeft;
-  //     }
-  //   }
-
-  //   if (evt.code === 'ArrowLeft') {
-  //     const screenWidth = window.innerWidth;
-
-  //     const leftPx = robot.style.left;
-  //     const left = leftPx.split('px')[0];
-
-  //     if (left >= 50) { // s'il reste au moins 30px à droite on peut continuer
-  //       const newLeft = `${parseInt(left, 10) - 30}px`;
-  //       console.log(newLeft);
-  //       robot.style.left = newLeft;
-  //     }
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   window.addEventListener('keydown', jump);
-
-  //   // Remove event listeners on cleanup
-  //   return () => {
-  //     window.removeEventListener('keydown', jump);
-  //   };
-  // }, []);
 
   return (
-    <div className="robot" style={{ left: '50px' }} />
+    <div className="robot" style={{ left: '50px'}}>
+      {/* <img src={imgSrc} /> */}
+    </div>
+    // backgroundImage: `url(${imgSrc})`
   );
 };
 
