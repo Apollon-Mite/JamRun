@@ -3,18 +3,100 @@
   position: absolute;
   width: 150px;
   height: 150px;
-  bottom: 100px;
+  bottom: 95px;
   // background-color: orange;
   background-position: center;
   background-size: 150px 150px;
   background-repeat: no-repeat;
   // border: 1px solid black;
   border-radius: 10px;
-  animation-duration: 1s;
+  animation-duration: .8s;
   animation-timing-function: ease-in-out;
   animation-fill-mode: forwards;
   transition: all .4s;
+  z-index: 2;
+  // border: 1px solid black;
   // animation: jump 1s linear infinite;
+  // filter: drop-shadow(0px 140px 4px rgba(0, 0, 0, .5));
+
+  // &::after {
+  //   content: '';
+  //   position: absolute;
+  //   width: 150px;
+  //   height: 150px;
+  //   left: 0;
+  //   bottom: -145px;
+  //   background-position: center;
+  //   background-size: 150px 150px;
+  //   background-repeat: no-repeat;
+  //   background-image: url('../../assets/images/run_robot.gif');
+  //   transform: scaleY(-1);
+  //   opacity: .5;
+  // }
+
+
+  // &::after {
+  //   content: "";
+  //   position: absolute;
+  //   left: 10px;
+  //   // border: 1px solid black;
+  //   bottom: -25px;
+  //   width: 120px;
+  //   height: 30px;
+  //   background-position: center;
+  //   opacity: .2;
+  //   animation: shadow .6s infinite
+  // }
+}
+
+
+// .jump {
+//   animation-duration: .8s;
+//   animation-timing-function: ease-in-out;
+//   animation-fill-mode: forwards;
+//   // animation-name: jump;
+//   &::after {
+//     animation-duration: .8s;
+//     animation-timing-function: ease-in-out;
+//     animation-fill-mode: forwards;
+//     animation-name: jump;
+//     animation-name: anti_jump
+//   }
+// }
+
+// @keyframes anti_jump {
+//   50% {
+//     bottom: -390px;
+//     // transform: rotate(+45deg);
+//   }
+
+//   100% {
+//     bottom: -145px;
+//     // transform: rotate(+90deg);
+//   }
+// }
+
+
+
+@keyframes shadow {
+  0% {
+    background-image: url('../../assets/images/shadow_long_px.png');
+  }
+  24% {
+    background-image: url('../../assets/images/shadow_long_px.png');
+  }
+  25% {
+    background-image: url('../../assets/images/shadow_big_px.png');
+  }
+  74% {
+    background-image: url('../../assets/images/shadow_big_px.png');
+  }
+  75% {
+    background-image: url('../../assets/images/shadow_long_px.png');
+  }
+  100% {
+    background-image: url('../../assets/images/shadow_long_px.png');
+  }
 }
 
 @keyframes jump {
@@ -85,4 +167,15 @@
 .run14 {
   // background-image: url(../../assets/images/robot-run-14.png);
   background-image: url('../../assets/images/pxArt13.png');
+}
+
+
+
+.difference {
+  position: fixed;
+  top: 100px;
+  right: 100px;
+  background-color: chocolate;
+  border: 2px dotted black;
+  width: 300px;
 }
