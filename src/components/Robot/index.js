@@ -116,11 +116,10 @@ const Robot = () => {
 
   let movesAfterFall = 0;
   const goRight = () => {
-    console.log(movesAfterFall);
     if (lost && movesAfterFall === 5) {
       return;
     }
-    else if (lost) {
+    if (lost) {
       movesAfterFall += 1;
     }
     const robot = document.querySelector('.robot');
@@ -129,7 +128,7 @@ const Robot = () => {
     // const leftPx = robot.style.left;    // works with left ≠ transform
     // const left = leftPx.split('px')[0];
 
-    //const leftPx = robot.style.transform; // works with transformX;
+    // const leftPx = robot.style.transform; // works with transformX;
     // eslint-disable-next-line prefer-destructuring
     // left = leftPx.split('px')[0];
 
@@ -142,6 +141,10 @@ const Robot = () => {
   };
 
   const goLeft = () => {
+    if (lost) {
+      return;
+    }
+
     const robot = document.querySelector('.robot');
     // const leftPx = robot.style.left;
     // const left = leftPx.split('px')[0];
