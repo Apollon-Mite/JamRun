@@ -9,17 +9,10 @@
 }
 
 
-.app img {
-  /* max-width: 150px; */
-}
-
-
-.background {
-  max-height: 100vh;
-  max-width: 100vw;
-  object-fit: cover;
-  position: absolute;
-  top: 0;
-  left: 0;
-
+.game-container {
+  width: 200px;
+  height: 600px;
+  border: 2px solid blue;
+  // overflow: hidden;
+  position: relative;
 }

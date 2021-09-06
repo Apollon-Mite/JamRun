@@ -22,7 +22,11 @@ const Robot = () => {
     // When key is pressed and we don't already think it's pressed, call the
     // key action callback and set a timer to generate another one after a delay
     //
+    
     document.onkeydown = function (event) {
+      if (lost) {
+        return
+      }
       const key = (event || window.event).keyCode;
       if (!(key in keys)) return true;
       if (!(key in timers)) {
@@ -94,45 +98,59 @@ const Robot = () => {
       const differenceRight = robotPosition.right - obstaclePosition.left;
       const differenceLeft = robotPosition.left - obstaclePosition.right;
       // const differenceTop = robotPosition.bottom - obstaclePosition.top;
-      console.log(differenceLeft);
+
       if (differenceRight > 35 && differenceLeft < -5 && nearlyDown) { //(differenceTop > -20)
         robotElement.querySelector('.robot_image').src = fallRobot;
-        console.log("Touché à gauche");
         lost = true;
         clearInterval(intervalID);
+        setTimeout(() => {
+          document.querySelector('.bg-container').style.animationPlayState = 'paused';
+        }, 100);
       }
-      // if (differenceLeft < -10) {
-      //   console.log("Touché à droite")
-      // }
       // if (lost === true) {
       //   clearInterval(intervalID);
       // }
     }, 100);
   };
+  let left = 0;
 
+  let movesAfterFall = 0;
   const goRight = () => {
+    console.log(movesAfterFall);
+    if (lost && movesAfterFall === 5) {
+      return;
+    }
+    else if (lost) {
+      movesAfterFall += 1;
+    }
     const robot = document.querySelector('.robot');
     const screenWidth = window.innerWidth;
 
-    const leftPx = robot.style.left;
-    const left = leftPx.split('px')[0];
+    // const leftPx = robot.style.left;    // works with left ≠ transform
+    // const left = leftPx.split('px')[0];
+
+    //const leftPx = robot.style.transform; // works with transformX;
+    // eslint-disable-next-line prefer-destructuring
+    // left = leftPx.split('px')[0];
 
     if (screenWidth - left > 130) {
-      const newLeft = `${parseInt(left, 10) + 30}px`;
-      robot.style.left = newLeft;
-      // setLeft(left + 30);
+      // const newLeft = `${parseInt(left, 10) + 30}px`;
+      // robot.style.left = newLeft;
+      left = `${parseInt(left, 10) + 30}`;
+      robot.style.transform = `translateX(${left}px)`;
     }
   };
 
   const goLeft = () => {
     const robot = document.querySelector('.robot');
-    const leftPx = robot.style.left;
-    const left = leftPx.split('px')[0];
+    // const leftPx = robot.style.left;
+    // const left = leftPx.split('px')[0];
 
     if (left >= 0) {
-      const newLeft = `${parseInt(left, 10) - 30}px`;
-      robot.style.left = newLeft;
-      // setLeft(left - 30);
+      // const newLeft = `${parseInt(left, 10) - 30}px`;
+      // robot.style.left = newLeft;
+      left = `${parseInt(left, 10) - 30}`;
+      robot.style.transform = `translateX(${left}px)`;
     }
     // isCollide();
   };

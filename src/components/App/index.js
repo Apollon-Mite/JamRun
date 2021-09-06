@@ -5,15 +5,15 @@ import React from 'react';
 import Robot from '../Robot';
 import Field from '../Field';
 
-import background from '../../assets/images/background.gif'
-import './styles.css';
+import './styles.scss';
 
 // == Composant
 const App = () => (
   <div className="app">
-    <img className="background" src={background} />
-    <Robot />
-    <Field />
+    <div className="game-container">
+      <Robot />
+      <Field />
+    </div>
   </div>
 );
 
