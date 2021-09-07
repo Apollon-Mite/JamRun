@@ -99,18 +99,16 @@
 
 
 .robot-explode {
-  
-
   &::after {
     content: "";
     position: absolute;
     width: 150px;
     height: 200px;
-    left: 0;
+    left: 0px;
     bottom: 0;
     background-image: url('../../assets/images/explosion.gif');
     background-position: center;
-    background-size: 150px 200px;
+    background-size: 200px 200px;
     background-repeat: no-repeat;
   }
 

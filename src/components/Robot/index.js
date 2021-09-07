@@ -4,10 +4,15 @@ import './styles.scss';
 import runRobot from 'src/assets/images/run_robot.gif';
 import fallRobot from 'src/assets/images/robot_fall_px.gif';
 import explosionAudio from 'src/assets/audio/explosion.mp3';
+import loseAudio from 'src/assets/audio/you_lose.mp3';
+import runAudio from 'src/assets/audio/running.mp3';
+import fallAudio from 'src/assets/audio/fall.mp3';
+import jumpAudio from 'src/assets/audio/jump.mp3';
 
 const Robot = () => {
   let jumping = false;
   let score = 0;
+  let runInterval;
   let lost = false;
   let nearlyDown = true; // instead of checking vertical position at some intervals
   // we are going to let game know when character nearly reached the floor, in which
@@ -55,7 +60,7 @@ const Robot = () => {
       timers = {};
     };
   };
-  
+
   KeyboardController(
     {
       37: function() { goLeft(); },
@@ -66,6 +71,8 @@ const Robot = () => {
     75,
   );
   // 200 originally, (works best with 50 or 100)
+  const runSound = new Audio(runAudio);
+  const jumpSound = new Audio(jumpAudio)
 
   const goJump = () => {
     const robot = document.querySelector('.rbt');
@@ -74,12 +81,15 @@ const Robot = () => {
     }
     else {
       robot.style.animationName = 'jump';
+      jumpSound.play();
+      runSound.pause();
       jumping = true;
       setTimeout(() => {
         nearlyDown = false; // player jumped so nearlydown is false
       }, 100);
       setTimeout(() => {
         nearlyDown = true; // now player nearly reached the floor
+        runSound.play();
       }, 700);
       setTimeout(() => {
         robot.style.animationName = '';
@@ -88,23 +98,34 @@ const Robot = () => {
     }
   };
 
-  // const explosionSound = new Audio('src/assets/audio/explosion.mp3');
-  const explosionSound = new Audio(explosionAudio)
-  
+  const explosionSound = new Audio(explosionAudio);
+  const loseSound = new Audio(loseAudio);
+  const fallSound = new Audio(fallAudio);
+
   let robotElement;
   const gameOver = (intervalID) => {
     robotElement.querySelector('.robot_image').src = fallRobot;
-    
+
     lost = true;
     clearInterval(intervalID);
     setTimeout(() => {
       document.querySelector('.bg-container').style.animationPlayState = 'paused';
       robotElement.style.filter = 'drop-shadow(1px 3px 2px rgba(0, 0, 0, .8))';
+      runSound.pause();
+      clearInterval(runInterval);
+      fallSound.play();
     }, 100);
+
+    setTimeout(() => {
+      loseSound.play();
+    }, 1000);
 
     setTimeout(() => {
       robotElement.classList.add('robot-explode');
       explosionSound.play();
+      setTimeout(() => {
+        explosionSound.pause();
+      }, 3000);
     }, 4000);
   };
 
@@ -137,31 +158,26 @@ const Robot = () => {
       // eslint-disable-next-line max-len
       if (nearlyDown) {
         if ((differenceRight1 > 35 && differenceLeft1 < -5)) {
-          gameOver(intervalID);
+          gameOver(intervalID, obstacle1);
           if (obstacle1.className.includes('garbage')) {
             obstacle1.classList.add('obstacle-fall');
           }
         }
         if (differenceRight2 > 35 && differenceLeft2 < -5) { // (differenceTop > -20)
-          gameOver(intervalID);
+          gameOver(intervalID, obstacle2);
           if (obstacle2.className.includes('garbage')) {
             obstacle2.classList.add('obstacle-fall');
           }
         }
         if (differenceRight3 > 35 && differenceLeft3 < -5) { // (differenceTop > -20)
-          gameOver(intervalID);
+          gameOver(intervalID, obstacle3);
           if (obstacle3.className.includes('garbage')) {
             obstacle3.classList.add('obstacle-fall');
           }
         }
       }
-
-      // if (lost === true) {
-      //   clearInterval(intervalID);
-      // }
     }, 100);
   };
-
 
   let left = 0;
 
@@ -244,6 +260,11 @@ const Robot = () => {
     obstacle1 = document.querySelector('.obs1');
     obstacle2 = document.querySelector('.obs2');
     obstacle3 = document.querySelector('.obs3');
+    runSound.play();
+
+    runInterval = setInterval(() => {
+      runSound.currentTime = 0;
+    }, 13100);
 
     isCollide();
   }, []);
