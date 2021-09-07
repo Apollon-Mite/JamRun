@@ -2,7 +2,7 @@ const paths = require('./paths');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-
+const SRC = paths.SRC;
 module.exports = {
   entry: [
     // SCSS
@@ -73,6 +73,17 @@ module.exports = {
           },
         ],
       },
+      // Audio
+      {
+        test: /\.mp3$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: { outputPath: 'audio/' },
+          },
+        ],
+      }
+      
     ],
   },
 };

@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from 'react';
+/* eslint-disable no-undef */
+import React, { useEffect } from 'react';
 import './styles.scss';
 import runRobot from 'src/assets/images/run_robot.gif';
 import fallRobot from 'src/assets/images/robot_fall_px.gif';
+import explosionAudio from 'src/assets/audio/explosion.mp3';
 
 const Robot = () => {
   let jumping = false;
+  let score = 0;
   let lost = false;
   let nearlyDown = true; // instead of checking vertical position at some intervals
   // we are going to let game know when character nearly reached the floor, in which
   // case : nearlyDown will be true.
-  
-  
 
   // Keyboard input with customisable repeat (set to 0 for no key repeat)
   //
@@ -22,10 +23,9 @@ const Robot = () => {
     // When key is pressed and we don't already think it's pressed, call the
     // key action callback and set a timer to generate another one after a delay
     //
-    
     document.onkeydown = function (event) {
       if (lost) {
-        return
+        return;
       }
       const key = (event || window.event).keyCode;
       if (!(key in keys)) return true;
@@ -55,20 +55,20 @@ const Robot = () => {
       timers = {};
     };
   };
-
+  
   KeyboardController(
     {
-      37: function() { goLeft()},
-      38: function() { goJump()},
-      39: function() { goRight()},
-      32: function() { goJump()},
+      37: function() { goLeft(); },
+      38: function() { goJump(); },
+      39: function() { goRight(); },
+      32: function() { goJump(); },
     },
     75,
   );
   // 200 originally, (works best with 50 or 100)
 
   const goJump = () => {
-    const robot = document.querySelector('.robot');
+    const robot = document.querySelector('.rbt');
     if (jumping === true) {
       console.log("can't jump");
     }
@@ -88,35 +88,88 @@ const Robot = () => {
     }
   };
 
+  // const explosionSound = new Audio('src/assets/audio/explosion.mp3');
+  const explosionSound = new Audio(explosionAudio)
+  
   let robotElement;
-  let obstacleElement;
+  const gameOver = (intervalID) => {
+    robotElement.querySelector('.robot_image').src = fallRobot;
+    
+    lost = true;
+    clearInterval(intervalID);
+    setTimeout(() => {
+      document.querySelector('.bg-container').style.animationPlayState = 'paused';
+      robotElement.style.filter = 'drop-shadow(1px 3px 2px rgba(0, 0, 0, .8))';
+    }, 100);
+
+    setTimeout(() => {
+      robotElement.classList.add('robot-explode');
+      explosionSound.play();
+    }, 4000);
+  };
+
+  let obstacle1;
+  let obstacle2;
+  let obstacle3;
   const isCollide = () => {
     // for (let i = 1; i <= 100 && lost === false; i += 1) {
     const intervalID = setInterval(() => {
       const robotPosition = robotElement.getBoundingClientRect();
-      const obstaclePosition = obstacleElement.getBoundingClientRect();
-      const differenceRight = robotPosition.right - obstaclePosition.left;
-      const differenceLeft = robotPosition.left - obstaclePosition.right;
-      // const differenceTop = robotPosition.bottom - obstaclePosition.top;
 
-      if (differenceRight > 35 && differenceLeft < -5 && nearlyDown) { //(differenceTop > -20)
-        robotElement.querySelector('.robot_image').src = fallRobot;
-        lost = true;
-        clearInterval(intervalID);
-        setTimeout(() => {
-          document.querySelector('.bg-container').style.animationPlayState = 'paused';
-        }, 100);
+      const obstacle1Ctx = obstacle1.getBoundingClientRect();
+      const obstacle2Ctx = obstacle2.getBoundingClientRect();
+      const obstacle3Ctx = obstacle3.getBoundingClientRect();
+
+      const differenceRight1 = robotPosition.right - obstacle1Ctx.left;
+      const differenceLeft1 = robotPosition.left - obstacle1Ctx.right;
+
+      const differenceRight2 = robotPosition.right - obstacle2Ctx.left;
+      const differenceLeft2 = robotPosition.left - obstacle2Ctx.right;
+
+      const differenceRight3 = robotPosition.right - obstacle3Ctx.left;
+      const differenceLeft3 = robotPosition.left - obstacle3Ctx.right;
+
+      if (!lost) {
+        score += 1;
+        document.querySelector('.score').textContent = score;
       }
+
+      // eslint-disable-next-line max-len
+      if (nearlyDown) {
+        if ((differenceRight1 > 35 && differenceLeft1 < -5)) {
+          gameOver(intervalID);
+          if (obstacle1.className.includes('garbage')) {
+            obstacle1.classList.add('obstacle-fall');
+          }
+        }
+        if (differenceRight2 > 35 && differenceLeft2 < -5) { // (differenceTop > -20)
+          gameOver(intervalID);
+          if (obstacle2.className.includes('garbage')) {
+            obstacle2.classList.add('obstacle-fall');
+          }
+        }
+        if (differenceRight3 > 35 && differenceLeft3 < -5) { // (differenceTop > -20)
+          gameOver(intervalID);
+          if (obstacle3.className.includes('garbage')) {
+            obstacle3.classList.add('obstacle-fall');
+          }
+        }
+      }
+
       // if (lost === true) {
       //   clearInterval(intervalID);
       // }
     }, 100);
   };
+
+
   let left = 0;
 
   let movesAfterFall = 0;
   const goRight = () => {
-    if (lost && movesAfterFall === 5) {
+    if (lost && movesAfterFall === 5) { // player can keep the button 'right' pushed and
+    // move up to 5 times after he fall but if he releases button then push it again,
+    // it won't work even if movesAfterFall is smaller than 5.
       return;
     }
     if (lost) {
@@ -132,7 +185,7 @@ const Robot = () => {
     // eslint-disable-next-line prefer-destructuring
     // left = leftPx.split('px')[0];
 
-    if (screenWidth - left > 130) {
+    if (screenWidth - left > 490) {
       // const newLeft = `${parseInt(left, 10) + 30}px`;
       // robot.style.left = newLeft;
       left = `${parseInt(left, 10) + 30}`;
@@ -155,18 +208,7 @@ const Robot = () => {
       left = `${parseInt(left, 10) - 30}`;
       robot.style.transform = `translateX(${left}px)`;
     }
-    // isCollide();
   };
-
-
-
-
-
-
-
-
-
-  // const [difference, setdifference] = useState(0);
 
   // const runningAnimation = () => {
   //   const robotElement = document.querySelector('.robot');
@@ -199,16 +241,19 @@ const Robot = () => {
 
   useEffect(() => {
     robotElement = document.querySelector('.robot');
-    obstacleElement = document.querySelector('.obstacle');
+    obstacle1 = document.querySelector('.obs1');
+    obstacle2 = document.querySelector('.obs2');
+    obstacle3 = document.querySelector('.obs3');
+
     isCollide();
   }, []);
 
   return (
     <>
-      <div className="robot" style={{ left: "50px" }}> {/* style={{ left: `${left}px` }} */}
-        <img src={runRobot} className="robot_image" />
+      <div className="robot rbt" style={{ left: '50px' }}> {/* style={{ left: `${left}px` }} */}
+        <img src={runRobot} className="robot_image" alt="" />
       </div>
-      {/* <p className="difference">{left}</p> */}
+      <p className="score">0</p>
     </>
   );
 };
