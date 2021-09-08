@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import './styles.scss';
 import runRobot from 'src/assets/images/run_robot.gif';
 import fallRobot from 'src/assets/images/robot_fall_px.gif';
+import miniRobotStop from 'src/assets/images/mini-robot-good.png';
 import explosionAudio from 'src/assets/audio/explosion.mp3';
 import loseAudio from 'src/assets/audio/you_lose.mp3';
 import runAudio from 'src/assets/audio/running.mp3';
@@ -29,7 +30,7 @@ const Robot = () => {
     // key action callback and set a timer to generate another one after a delay
     //
     document.onkeydown = function (event) {
-      if (lost) {
+      if (lost) { // we stop keys from working after player lost
         return;
       }
       const key = (event || window.event).keyCode;
@@ -72,7 +73,7 @@ const Robot = () => {
   );
   // 200 originally, (works best with 50 or 100)
   const runSound = new Audio(runAudio);
-  const jumpSound = new Audio(jumpAudio)
+  const jumpSound = new Audio(jumpAudio);
 
   const goJump = () => {
     const robot = document.querySelector('.rbt');
@@ -82,14 +83,17 @@ const Robot = () => {
     else {
       robot.style.animationName = 'jump';
       jumpSound.play();
-      runSound.pause();
       jumping = true;
+      runSound.pause();
+
       setTimeout(() => {
         nearlyDown = false; // player jumped so nearlydown is false
       }, 100);
       setTimeout(() => {
         nearlyDown = true; // now player nearly reached the floor
-        runSound.play();
+        if (!lost) {
+          runSound.play();
+        }
       }, 700);
       setTimeout(() => {
         robot.style.animationName = '';
@@ -103,6 +107,7 @@ const Robot = () => {
   const fallSound = new Audio(fallAudio);
 
   let robotElement;
+
   const gameOver = (intervalID) => {
     robotElement.querySelector('.robot_image').src = fallRobot;
 
@@ -129,53 +134,99 @@ const Robot = () => {
     }, 4000);
   };
 
-  let obstacle1;
-  let obstacle2;
-  let obstacle3;
   const isCollide = () => {
     // for (let i = 1; i <= 100 && lost === false; i += 1) {
     const intervalID = setInterval(() => {
       const robotPosition = robotElement.getBoundingClientRect();
 
-      const obstacle1Ctx = obstacle1.getBoundingClientRect();
-      const obstacle2Ctx = obstacle2.getBoundingClientRect();
-      const obstacle3Ctx = obstacle3.getBoundingClientRect();
+      // const obstacle1Ctx = obstacle1.getBoundingClientRect();
+      // const obstacle2Ctx = obstacle2.getBoundingClientRect();
+      // const obstacle3Ctx = obstacle3.getBoundingClientRect();
 
-      const differenceRight1 = robotPosition.right - obstacle1Ctx.left;
-      const differenceLeft1 = robotPosition.left - obstacle1Ctx.right;
+      // const differenceRight1 = robotPosition.right - obstacle1Ctx.left;
+      // const differenceLeft1 = robotPosition.left - obstacle1Ctx.right;
 
-      const differenceRight2 = robotPosition.right - obstacle2Ctx.left;
-      const differenceLeft2 = robotPosition.left - obstacle2Ctx.right;
+      // const differenceRight2 = robotPosition.right - obstacle2Ctx.left;
+      // const differenceLeft2 = robotPosition.left - obstacle2Ctx.right;
 
-      const differenceRight3 = robotPosition.right - obstacle3Ctx.left;
-      const differenceLeft3 = robotPosition.left - obstacle3Ctx.right;
+      // const differenceRight3 = robotPosition.right - obstacle3Ctx.left;
+      // const differenceLeft3 = robotPosition.left - obstacle3Ctx.right;
+
 
       if (!lost) {
         score += 1;
         document.querySelector('.score').textContent = score;
       }
+      // if (obstacle1.className.includes('mini-rbt')) {
+      //   if (differenceLeft1 > -500 && differenceLeft1 < 100) {
+      //     obstacle1.classList.remove('mini-rbt--stop');
+      //     obstacle1.classList.add('mini-rbt--move-left');
+      //   }
 
-      // eslint-disable-next-line max-len
-      if (nearlyDown) {
-        if ((differenceRight1 > 35 && differenceLeft1 < -5)) {
-          gameOver(intervalID, obstacle1);
-          if (obstacle1.className.includes('garbage')) {
-            obstacle1.classList.add('obstacle-fall');
+      //   if (differenceRight1 > 50) {
+      //     obstacle1.classList.remove('mini-rbt--move-left');
+      //     obstacle1.classList.add('mini-rbt--move-right');
+      //   }
+      // }
+
+      const allObstacles = document.querySelectorAll('.obstacle');
+
+      allObstacles.forEach((obstacle) => {
+        // we get their positions
+        const obstaclePosition = obstacle.getBoundingClientRect();
+        const differenceRight = robotPosition.right - obstaclePosition.left;
+        const differenceLeft = robotPosition.left - obstaclePosition.right;
+
+        if (obstacle.className.includes('mini-rbt')) { // if it is a mini-robot
+          if (differenceLeft > -500 && differenceLeft < 100) {
+            obstacle.classList.remove('mini-rbt--stop');
+            obstacle.classList.add('mini-rbt--move-left');
+          }
+          if (differenceRight > 50) {
+            obstacle.classList.remove('mini-rbt--move-left');
+            obstacle.classList.add('mini-rbt--move-right');
           }
         }
-        if (differenceRight2 > 35 && differenceLeft2 < -5) { // (differenceTop > -20)
-          gameOver(intervalID, obstacle2);
-          if (obstacle2.className.includes('garbage')) {
-            obstacle2.classList.add('obstacle-fall');
+
+        // we check if player collides with this obstacle
+        if (nearlyDown) {
+          if ((differenceRight > 35 && differenceLeft < -5)) {
+            gameOver(intervalID);
+
+            if (obstacle.className.includes('mini-rbt')) {
+              setTimeout(() => {
+                obstacle.style.animationPlayState = 'paused';
+                obstacle.style.backgroundImage = `url(${miniRobotStop})`;
+              }, 1000);
+            }
+            if (obstacle.className.includes('garbage')) { // if it is a garbage then it falls
+              obstacle.classList.add('obstacle-fall');
+            }
           }
         }
-        if (differenceRight3 > 35 && differenceLeft3 < -5) { // (differenceTop > -20)
-          gameOver(intervalID, obstacle3);
-          if (obstacle3.className.includes('garbage')) {
-            obstacle3.classList.add('obstacle-fall');
-          }
-        }
-      }
+      });
+
+      // if (nearlyDown) {
+      //   if ((differenceRight1 > 35 && differenceLeft1 < -5)) {
+      //     gameOver(intervalID, obstacle1);
+      //     if (obstacle1.className.includes('garbage')) {
+      //       obstacle1.classList.add('obstacle-fall');
+      //     }
+      //   }
+      //   if (differenceRight2 > 35 && differenceLeft2 < -5) { // (differenceTop > -20)
+      //     gameOver(intervalID, obstacle2);
+      //     if (obstacle2.className.includes('garbage')) {
+      //       obstacle2.classList.add('obstacle-fall');
+      //     }
+      //   }
+      //   if (differenceRight3 > 35 && differenceLeft3 < -5) { // (differenceTop > -20)
+      //     gameOver(intervalID, obstacle3);
+      //     if (obstacle3.className.includes('garbage')) {
+      //       obstacle3.classList.add('obstacle-fall');
+      //     }
+      //   }
+      // }
+
     }, 100);
   };
 
@@ -257,9 +308,7 @@ const Robot = () => {
 
   useEffect(() => {
     robotElement = document.querySelector('.robot');
-    obstacle1 = document.querySelector('.obs1');
-    obstacle2 = document.querySelector('.obs2');
-    obstacle3 = document.querySelector('.obs3');
+    runSound.volume = 0.2;
     runSound.play();
 
     runInterval = setInterval(() => {
