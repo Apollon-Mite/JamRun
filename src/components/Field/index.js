@@ -55,6 +55,7 @@ const Field = () => (
       <div className="coin cn5" style={{ backgroundImage: `url(${coin})` }} />
       <div className="coin cn6" style={{ backgroundImage: `url(${coin})` }} />
 
+
       <div className="obstacle obs1 mini-rbt mini-rbt--stop" /* style={{ backgroundImage: `url(${miniRobotStop})` }} */ />
       <div className="obstacle obs2 mini-rbt mini-rbt--stop" /* style={{ backgroundImage: `url(${miniRobotStop})` }} */ />
       {/* <div className="obstacle obs2 mini-robot-move-left" style={{ backgroundImage: `url(${miniRobotLeft})` }} /> */}

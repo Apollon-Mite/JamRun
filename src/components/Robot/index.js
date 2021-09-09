@@ -4,11 +4,14 @@
 import React, { useEffect } from 'react';
 import './styles.scss';
 import runRobot from 'src/assets/images/run_robot.gif';
+import jumpRobot from 'src/assets/images/rbt_jump.gif';
 import fallRobot from 'src/assets/images/robot_fall_px.gif';
 import miniRobotStop from 'src/assets/images/mini-robot-good.png';
 import glitter from 'src/assets/images/glitter.gif';
 import explosionAudio from 'src/assets/audio/explosion.mp3';
 import loseAudio from 'src/assets/audio/you_lose.mp3';
+import finishHim from 'src/assets/audio/finish-him.mp3';
+import fatality from 'src/assets/audio/fatality.mp3';
 import runAudio from 'src/assets/audio/running.mp3';
 import fallAudio from 'src/assets/audio/fall.mp3';
 import jumpAudio from 'src/assets/audio/jump.mp3';
@@ -96,6 +99,7 @@ const Robot = () => {
     }
     else {
       robot.style.animationName = 'jump';
+      robot.querySelector('.robot_image').src = jumpRobot;
       jumpSound.play();
       jumping = true;
       runSound.pause();
@@ -116,6 +120,9 @@ const Robot = () => {
         }
       }, 700);
       setTimeout(() => {
+        if (!lost) {
+          robot.querySelector('.robot_image').src = runRobot;
+        }
         robot.style.animationName = '';
         jumping = false;
       }, 750);
@@ -125,6 +132,8 @@ const Robot = () => {
   const explosionSound = new Audio(explosionAudio);
   const loseSound = new Audio(loseAudio);
   const fallSound = new Audio(fallAudio);
+  const finishHimSound = new Audio(finishHim);
+  const fatalitySound = new Audio(fatality);
 
   let robotElement;
 
@@ -144,7 +153,12 @@ const Robot = () => {
 
     setTimeout(() => {
       loseSound.play();
-    }, 1000);
+    }, 3000);
+
+    setTimeout(() => {
+      // finish him
+      finishHimSound.play();
+    }, 7000);
 
     setTimeout(() => {
       robotElement.classList.add('robot-explode');
@@ -152,7 +166,12 @@ const Robot = () => {
       setTimeout(() => {
         explosionSound.pause();
       }, 3000);
-    }, 4000);
+    }, 9000);
+
+    setTimeout(() => {
+      // fatality
+      fatalitySound.play();
+    }, 12000);
   };
 
   const isCollide = () => {
@@ -160,25 +179,13 @@ const Robot = () => {
     const intervalID = setInterval(() => {
       const robotPosition = robotElement.getBoundingClientRect();
 
-      // const obstacle1Ctx = obstacle1.getBoundingClientRect();
-      // const obstacle2Ctx = obstacle2.getBoundingClientRect();
-      // const obstacle3Ctx = obstacle3.getBoundingClientRect();
-
-      // const differenceRight1 = robotPosition.right - obstacle1Ctx.left;
-      // const differenceLeft1 = robotPosition.left - obstacle1Ctx.right;
-
-      // const differenceRight2 = robotPosition.right - obstacle2Ctx.left;
-      // const differenceLeft2 = robotPosition.left - obstacle2Ctx.right;
-
-      // const differenceRight3 = robotPosition.right - obstacle3Ctx.left;
-      // const differenceLeft3 = robotPosition.left - obstacle3Ctx.right;
-
       const coins = document.querySelectorAll('.coin');
       coins.forEach((coin) => {
         const coinPosition = coin.getBoundingClientRect();
-        const differenceLeft = coinPosition.right - robotPosition.left;
-
-        if (playerHigh && differenceLeft < 20 && differenceLeft > -20) {
+        const differenceLeft = coinPosition.left - robotPosition.right;
+        const differenceBottom = robotPosition.top - coinPosition.bottom;
+        // console.log("differenceBottom:",differenceBottom, "differenceLeft:", differenceLeft);
+        if (differenceBottom < 10 && differenceLeft < 30 && differenceLeft > -30) {
           coin.style.backgroundImage = `url(${glitter})`;
         }
       });
@@ -208,10 +215,12 @@ const Robot = () => {
             obstacle.classList.remove('mini-rbt--move-left');
             obstacle.classList.add('mini-rbt--move-right');
 
-            setTimeout(() => {
-              obstacle.classList.remove('mini-rbt--move-right');
-              obstacle.classList.add('mini-rbt--stop');
-            }, 7000);
+            if (!lost) {
+              setTimeout(() => {
+                obstacle.classList.remove('mini-rbt--move-right');
+                obstacle.classList.add('mini-rbt--stop');
+              }, 7000);
+            }
           }
         }
 
