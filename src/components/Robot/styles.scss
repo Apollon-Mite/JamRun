@@ -19,6 +19,7 @@
   filter: drop-shadow(30px -5px 4px rgba(0, 0, 0, .1));
   transform: translate3d(0, 0, 0);   /* Hey browser, use your GPU */
 
+
   // border: 1px solid black;
   // animation: jump 1s linear infinite;
   // filter: drop-shadow(0px 140px 4px rgba(0, 0, 0, .5));
@@ -87,11 +88,13 @@
   50% {
     bottom: 250px;
     // transform: translateY(-150px);
+    // --translateY: -150px;
   }
 
   100% {
     bottom: 100px;
     // transform: translateY(0px);
+    // --translateY: 0px;
   }
 }
 
@@ -210,6 +213,7 @@
   color: orange;
   padding: 10px 0px 10px 0px;
   text-align: center;
-  width: 100px;
+  min-width: 100px;
+  max-width: 200px;
   font-family: silom, Arial, Helvetica, sans-serif;
 }

@@ -16,12 +16,10 @@
 @-webkit-keyframes bgMove {
   from {
     -webkit-transform: translateX(0%); /* Ch <36, Saf 5.1+, iOS < 9.2, An =<4.4.4 */
-    -ms-transform: translateX(0%); /* IE 9 */
     transform: translateX(0%); /* IE 10, Fx 16+, Op 12.1+ */
   }
   to {
     -webkit-transform: translateX(-100%); /* Ch <36, Saf 5.1+, iOS < 9.2, An =<4.4.4 */
-    -ms-transform: translateX(-100%); /* IE 9 */
     transform: translateX(-100%); /* IE 10, Fx 16+, Op 12.1+ */
   }
 }
@@ -48,6 +46,7 @@
   // left: 0;
   display: flex;
 
+
   // transition: left 10s;
   transform: translate3d(0, 0, 0);   /* Hey browser, use your GPU */
 
@@ -56,6 +55,17 @@
 
 
   // animation: bgMove 10s linear infinite; real
+}
+
+.bg--1 {
+  left: 1180.64px;
+}
+.bg--2 {
+  // border: 2px solid red;
+}
+
+.opacity {
+  opacity: 0;
 }
 
 .bg {
@@ -192,3 +202,34 @@
 
 
 
+.coin {
+  width: 25px;
+  height: 25px;
+  position: absolute;
+  bottom: 290px;
+  background-position: center;
+  background-size: 25px 25px;
+  background-repeat: no-repeat;
+}
+
+.cn1 {
+  left: 1250px;
+}
+
+.cn2 {
+  left: 1350px;
+}
+
+.cn3 {
+  left: 2850px;
+}
+
+.cn4 {
+  left: 2950px;
+}
+.cn5 {
+  left: 3050px;
+}
+.cn6 {
+  left: 4050px;
+}

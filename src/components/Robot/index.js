@@ -1,9 +1,12 @@
+/* eslint-disable consistent-return */
+/* eslint-disable no-use-before-define */
 /* eslint-disable no-undef */
 import React, { useEffect } from 'react';
 import './styles.scss';
 import runRobot from 'src/assets/images/run_robot.gif';
 import fallRobot from 'src/assets/images/robot_fall_px.gif';
 import miniRobotStop from 'src/assets/images/mini-robot-good.png';
+import glitter from 'src/assets/images/glitter.gif';
 import explosionAudio from 'src/assets/audio/explosion.mp3';
 import loseAudio from 'src/assets/audio/you_lose.mp3';
 import runAudio from 'src/assets/audio/running.mp3';
@@ -12,10 +15,11 @@ import jumpAudio from 'src/assets/audio/jump.mp3';
 
 const Robot = () => {
   let jumping = false;
+  let nearlyDown = true; // instead of checking vertical position at some intervals
+  let playerHigh = false;
   let score = 0;
   let runInterval;
   let lost = false;
-  let nearlyDown = true; // instead of checking vertical position at some intervals
   // we are going to let game know when character nearly reached the floor, in which
   // case : nearlyDown will be true.
 
@@ -57,6 +61,7 @@ const Robot = () => {
     // causing a key to 'get stuck down', cancel all held keys
     //
     window.onblur = function () {
+      // eslint-disable-next-line no-restricted-syntax
       for (key in timers) if (timers[key] !== null) clearInterval(timers[key]);
       timers = {};
     };
@@ -64,21 +69,30 @@ const Robot = () => {
 
   KeyboardController(
     {
-      37: function() { goLeft(); },
-      38: function() { goJump(); },
-      39: function() { goRight(); },
-      32: function() { goJump(); },
+      37() {
+        goLeft();
+      },
+      38() {
+        goJump();
+      },
+      39() {
+        goRight();
+      },
+      32() {
+        goJump();
+      },
     },
     75,
   );
   // 200 originally, (works best with 50 or 100)
+
   const runSound = new Audio(runAudio);
   const jumpSound = new Audio(jumpAudio);
 
   const goJump = () => {
     const robot = document.querySelector('.rbt');
     if (jumping === true) {
-      console.log("can't jump");
+      // console.log("can't jump");
     }
     else {
       robot.style.animationName = 'jump';
@@ -89,6 +103,12 @@ const Robot = () => {
       setTimeout(() => {
         nearlyDown = false; // player jumped so nearlydown is false
       }, 100);
+      setTimeout(() => {
+        playerHigh = true;
+      }, 200);
+      setTimeout(() => {
+        playerHigh = false;
+      }, 850);
       setTimeout(() => {
         nearlyDown = true; // now player nearly reached the floor
         if (!lost) {
@@ -114,7 +134,8 @@ const Robot = () => {
     lost = true;
     clearInterval(intervalID);
     setTimeout(() => {
-      document.querySelector('.bg-container').style.animationPlayState = 'paused';
+      document.querySelector('.bg--1').style.animationPlayState = 'paused';
+      document.querySelector('.bg--2').style.animationPlayState = 'paused';
       robotElement.style.filter = 'drop-shadow(1px 3px 2px rgba(0, 0, 0, .8))';
       runSound.pause();
       clearInterval(runInterval);
@@ -152,22 +173,20 @@ const Robot = () => {
       // const differenceRight3 = robotPosition.right - obstacle3Ctx.left;
       // const differenceLeft3 = robotPosition.left - obstacle3Ctx.right;
 
+      const coins = document.querySelectorAll('.coin');
+      coins.forEach((coin) => {
+        const coinPosition = coin.getBoundingClientRect();
+        const differenceLeft = coinPosition.right - robotPosition.left;
+
+        if (playerHigh && differenceLeft < 20 && differenceLeft > -20) {
+          coin.style.backgroundImage = `url(${glitter})`;
+        }
+      });
 
       if (!lost) {
         score += 1;
         document.querySelector('.score').textContent = score;
       }
-      // if (obstacle1.className.includes('mini-rbt')) {
-      //   if (differenceLeft1 > -500 && differenceLeft1 < 100) {
-      //     obstacle1.classList.remove('mini-rbt--stop');
-      //     obstacle1.classList.add('mini-rbt--move-left');
-      //   }
-
-      //   if (differenceRight1 > 50) {
-      //     obstacle1.classList.remove('mini-rbt--move-left');
-      //     obstacle1.classList.add('mini-rbt--move-right');
-      //   }
-      // }
 
       const allObstacles = document.querySelectorAll('.obstacle');
 
@@ -180,53 +199,41 @@ const Robot = () => {
         if (obstacle.className.includes('mini-rbt')) { // if it is a mini-robot
           if (differenceLeft > -500 && differenceLeft < 100) {
             obstacle.classList.remove('mini-rbt--stop');
+            // if (obstacle.className.includes('mini-rbt--move-right')) {
+            //   obstacle.classList.remove('mini-rbt--move-right');
+            // }
             obstacle.classList.add('mini-rbt--move-left');
           }
           if (differenceRight > 50) {
             obstacle.classList.remove('mini-rbt--move-left');
             obstacle.classList.add('mini-rbt--move-right');
+
+            setTimeout(() => {
+              obstacle.classList.remove('mini-rbt--move-right');
+              obstacle.classList.add('mini-rbt--stop');
+            }, 7000);
           }
         }
 
         // we check if player collides with this obstacle
-        if (nearlyDown) {
-          if ((differenceRight > 35 && differenceLeft < -5)) {
-            gameOver(intervalID);
-
-            if (obstacle.className.includes('mini-rbt')) {
-              setTimeout(() => {
-                obstacle.style.animationPlayState = 'paused';
-                obstacle.style.backgroundImage = `url(${miniRobotStop})`;
-              }, 1000);
-            }
-            if (obstacle.className.includes('garbage')) { // if it is a garbage then it falls
-              obstacle.classList.add('obstacle-fall');
-            }
+        if (nearlyDown && differenceRight > 35 && differenceLeft < -5) {
+          gameOver(intervalID);
+          lost = true;
+          if (obstacle.className.includes('garbage')) { // if it is a garbage then it falls
+            obstacle.classList.add('obstacle-fall');
           }
         }
       });
-
-      // if (nearlyDown) {
-      //   if ((differenceRight1 > 35 && differenceLeft1 < -5)) {
-      //     gameOver(intervalID, obstacle1);
-      //     if (obstacle1.className.includes('garbage')) {
-      //       obstacle1.classList.add('obstacle-fall');
-      //     }
-      //   }
-      //   if (differenceRight2 > 35 && differenceLeft2 < -5) { // (differenceTop > -20)
-      //     gameOver(intervalID, obstacle2);
-      //     if (obstacle2.className.includes('garbage')) {
-      //       obstacle2.classList.add('obstacle-fall');
-      //     }
-      //   }
-      //   if (differenceRight3 > 35 && differenceLeft3 < -5) { // (differenceTop > -20)
-      //     gameOver(intervalID, obstacle3);
-      //     if (obstacle3.className.includes('garbage')) {
-      //       obstacle3.classList.add('obstacle-fall');
-      //     }
-      //   }
-      // }
-
+      if (lost) {
+        allObstacles.forEach((obstacle) => {
+          if (obstacle.className.includes('mini-rbt')) {
+            setTimeout(() => {
+              obstacle.style.animationPlayState = 'paused';
+              obstacle.style.backgroundImage = `url(${miniRobotStop})`;
+            }, 1000);
+          }
+        });
+      }
     }, 100);
   };
 
