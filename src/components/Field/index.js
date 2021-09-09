@@ -35,13 +35,13 @@ const Field = () => (
       {/* <img className="bg labo background2" src={laboratory} alt="" /> */}
       {/* <img className="bg labo background3" src={laboratory} alt="" /> */}
       <img className="bg labo background" src={laboEnd} alt="" />
-      <img className="bg night-city" src={nightCity} alt="" />
+      <img className="bg night-city crowd" src={nightCity} alt="" />
       <img className="bg night-city" src={nightCity} alt="" />
       <img className="bg night-city" src={nightCity} alt="" />
       <img className="bg labo background3" src={laboStart} alt="" />
       <img className="bg labo background" src={laboratory} alt="" />
       <img className="bg labo background" src={laboEnd} alt="" />
-      <img className="bg night-city" src={nightCity} alt="" />
+      <img className="bg night-city crowd" src={nightCity} alt="" />
       <img className="bg night-city" src={nightCity} alt="" />
       <img className="bg labo background3" src={laboStart} alt="" />
       {/* <img className="bg background3" src={laboratory} alt="" />
@@ -58,8 +58,12 @@ const Field = () => (
 
       <div className="obstacle obs1 mini-rbt mini-rbt--stop" /* style={{ backgroundImage: `url(${miniRobotStop})` }} */ />
       <div className="obstacle obs2 mini-rbt mini-rbt--stop" /* style={{ backgroundImage: `url(${miniRobotStop})` }} */ />
+      <div className="obstacle obs7 mini-rbt mini-rbt--stop" /* style={{ backgroundImage: `url(${miniRobotStop})` }} */ />
+      <div className="obstacle obs8 mini-rbt mini-rbt--stop" /* style={{ backgroundImage: `url(${miniRobotStop})` }} */ />
       {/* <div className="obstacle obs2 mini-robot-move-left" style={{ backgroundImage: `url(${miniRobotLeft})` }} /> */}
       <div className="obstacle obs3 garbage" style={{ backgroundImage: `url(${garbage})` }} />
+      <div className="obstacle obs5 garbage" style={{ backgroundImage: `url(${garbage})` }} />
+      <div className="obstacle obs6 garbage" style={{ backgroundImage: `url(${garbage})` }} />
       <div className="obstacle obs4 mini-rbt mini-rbt--stop" /* style={{ backgroundImage: `url(${miniRobotStop})` }} */ />
     </div>
 

@@ -4,22 +4,24 @@
 import React, { useEffect } from 'react';
 import './styles.scss';
 import runRobot from 'src/assets/images/run_robot.gif';
-import jumpRobot from 'src/assets/images/rbt_jump.gif';
+import jumpRobot from 'src/assets/images/rbt-new-jump.gif';
 import fallRobot from 'src/assets/images/robot_fall_px.gif';
 import miniRobotStop from 'src/assets/images/mini-robot-good.png';
 import glitter from 'src/assets/images/glitter.gif';
+import coinGif from 'src/assets/images/coin.gif';
+import cityAudio from 'src/assets/audio/city-night-crowd.mp3';
+import coinCollectAudio from 'src/assets/audio/collect_coin.mp3';
 import explosionAudio from 'src/assets/audio/explosion.mp3';
 import loseAudio from 'src/assets/audio/you_lose.mp3';
 import finishHim from 'src/assets/audio/finish-him.mp3';
 import fatality from 'src/assets/audio/fatality.mp3';
 import runAudio from 'src/assets/audio/running.mp3';
-import fallAudio from 'src/assets/audio/fall.mp3';
+import fallAudio from 'src/assets/audio/fall_sound.mp3';
 import jumpAudio from 'src/assets/audio/jump.mp3';
 
 const Robot = () => {
   let jumping = false;
   let nearlyDown = true; // instead of checking vertical position at some intervals
-  let playerHigh = false;
   let score = 0;
   let runInterval;
   let lost = false;
@@ -98,21 +100,15 @@ const Robot = () => {
       // console.log("can't jump");
     }
     else {
-      robot.style.animationName = 'jump';
       robot.querySelector('.robot_image').src = jumpRobot;
       jumpSound.play();
+      robot.style.animationName = 'jump';
       jumping = true;
       runSound.pause();
 
       setTimeout(() => {
         nearlyDown = false; // player jumped so nearlydown is false
       }, 100);
-      setTimeout(() => {
-        playerHigh = true;
-      }, 200);
-      setTimeout(() => {
-        playerHigh = false;
-      }, 850);
       setTimeout(() => {
         nearlyDown = true; // now player nearly reached the floor
         if (!lost) {
@@ -125,7 +121,7 @@ const Robot = () => {
         }
         robot.style.animationName = '';
         jumping = false;
-      }, 750);
+      }, 740);
     }
   };
 
@@ -174,6 +170,9 @@ const Robot = () => {
     }, 12000);
   };
 
+  const coinCollectSound = new Audio(coinCollectAudio);
+  const cityCrowdSound = new Audio(cityAudio);
+  
   const isCollide = () => {
     // for (let i = 1; i <= 100 && lost === false; i += 1) {
     const intervalID = setInterval(() => {
@@ -184,9 +183,23 @@ const Robot = () => {
         const coinPosition = coin.getBoundingClientRect();
         const differenceLeft = coinPosition.left - robotPosition.right;
         const differenceBottom = robotPosition.top - coinPosition.bottom;
-        // console.log("differenceBottom:",differenceBottom, "differenceLeft:", differenceLeft);
-        if (differenceBottom < 10 && differenceLeft < 30 && differenceLeft > -30) {
+        // console.log("Bottom:",differenceBottom, "Left:", differenceLeft, "jump:", jumping);
+        const collected = !!coin.className.includes('collected');
+
+        if (!collected && differenceBottom < 30 && differenceLeft < 30 && differenceLeft > -55) {
           coin.style.backgroundImage = `url(${glitter})`;
+          coin.classList.add('collected');
+          coinCollectSound.currentTime = 0;
+          coinCollectSound.play();
+          console.log("joué");
+          score += 50;
+          document.querySelector('.score').textContent = score;
+          setTimeout(() => {
+            if (!lost) { // we recreate the coin
+              coin.style.backgroundImage = `url(${coinGif})`;
+              coin.classList.remove('collected');
+            }
+          }, 10000);
         }
       });
 
@@ -194,6 +207,36 @@ const Robot = () => {
         score += 1;
         document.querySelector('.score').textContent = score;
       }
+
+      const nightCities = document.querySelectorAll('.crowd');
+      nightCities.forEach((city) => {
+        const cityPosition = city.getBoundingClientRect();
+        const differenceLeft = cityPosition.left - robotPosition.right;
+        // let differenceRight
+        console.log(differenceLeft);
+        const citySound = !!city.className.includes('city-sound');
+
+        if (!citySound && differenceLeft < 400) {
+          cityCrowdSound.currentTime = 0;
+          cityCrowdSound.volume = 0.2;
+          cityCrowdSound.play();
+          city.classList.add('city-sound');
+        }
+        const citySoundStrong = !!city.className.includes('city-sound--strong');
+        if (!citySoundStrong && differenceLeft < 100) {
+          cityCrowdSound.volume = 1;
+          city.classList.add('city-sound--strong');
+          setTimeout(() => {
+            cityCrowdSound.volume = 0.5;
+          }, 5000);
+          setTimeout(() => {
+            cityCrowdSound.volume = 0.2;
+          }, 7000);
+          setTimeout(() => {
+            cityCrowdSound.pause();
+          }, 10000);
+        }
+      });
 
       const allObstacles = document.querySelectorAll('.obstacle');
 
@@ -215,12 +258,12 @@ const Robot = () => {
             obstacle.classList.remove('mini-rbt--move-left');
             obstacle.classList.add('mini-rbt--move-right');
 
-            if (!lost) {
-              setTimeout(() => {
+            setTimeout(() => {
+              if (!lost) {
                 obstacle.classList.remove('mini-rbt--move-right');
                 obstacle.classList.add('mini-rbt--stop');
-              }, 7000);
-            }
+              }
+            }, 7000);
           }
         }
 
@@ -243,7 +286,7 @@ const Robot = () => {
           }
         });
       }
-    }, 100);
+    }, 60); // à 100 normalement
   };
 
   let left = 0;

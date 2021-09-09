@@ -172,6 +172,23 @@
   left: 4500px;
 }
 
+.obs5 {
+  left: 4800px; // garbage
+}
+
+.obs6 {
+  left: 4900px; // garbage
+}
+
+.obs7 {
+  left: 5400px; // rbt
+}
+
+.obs8 {
+  left: 5700px; // rbt
+}
+
+
 .obstacle-fall {
   transition: transform .5s;
   transform: rotate(90deg);
