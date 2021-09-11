@@ -50,8 +50,8 @@
   // transition: left 10s;
   transform: translate3d(0, 0, 0);   /* Hey browser, use your GPU */
 
-  -webkit-animation: bgMove 22s linear infinite;
-  animation: bgMove 22s linear infinite;
+  // -webkit-animation: bgMove 22s linear infinite;
+  // animation: bgMove 22s linear infinite;
 
 
   // animation: bgMove 10s linear infinite; real
@@ -194,7 +194,7 @@
   transform: rotate(90deg);
   transform-origin: bottom right;
   -webkit-animation-name: shadow;
-  -webkit-animation-duration: 1s;
+  -webkit-animation-duration: .3s;
   -webkit-animation-fill-mode: forwards;
   animation-name: shadow;
   animation-duration: .3s;

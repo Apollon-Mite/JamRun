@@ -100,7 +100,9 @@
 }
 
 
-
+.robot-left {
+  transform: scaleX(-1);
+}
 
 .robot-explode {
   &::after {

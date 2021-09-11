@@ -1,10 +1,16 @@
+/* eslint-disable eqeqeq */
 /* eslint-disable consistent-return */
 /* eslint-disable no-use-before-define */
 /* eslint-disable no-undef */
 import React, { useEffect } from 'react';
 import './styles.scss';
-import runRobot from 'src/assets/images/run_robot.gif';
-import jumpRobot from 'src/assets/images/rbt-new-jump.gif';
+
+import faceRightRobot from 'src/assets/images/rbt_staying-right.gif';
+import faceLeftRobot from 'src/assets/images/rbt_staying-left.gif';
+import runRobotRight from 'src/assets/images/run_robot_right.gif';
+import runRobotLeft from 'src/assets/images/run_robot_left.gif';
+import jumpRobotRight from 'src/assets/images/rbt-new-jump-right.gif';
+import jumpRobotLeft from 'src/assets/images/rbt-new-jump-left.gif';
 import fallRobot from 'src/assets/images/robot_fall_px.gif';
 import miniRobotStop from 'src/assets/images/mini-robot-good.png';
 import glitter from 'src/assets/images/glitter.gif';
@@ -22,11 +28,15 @@ import jumpAudio from 'src/assets/audio/jump.mp3';
 const Robot = () => {
   let jumping = false;
   let nearlyDown = true; // instead of checking vertical position at some intervals
+  // we are going to let game know when character nearly reached the floor, in which
+  // case : nearlyDown will be true.
   let score = 0;
   let runInterval;
   let lost = false;
-  // we are going to let game know when character nearly reached the floor, in which
-  // case : nearlyDown will be true.
+  let rightDirection = true;
+  let rightSteps = 0;
+  let leftSteps = 0;
+  const runSound = new Audio(runAudio);
 
   // Keyboard input with customisable repeat (set to 0 for no key repeat)
   //
@@ -60,6 +70,32 @@ const Robot = () => {
         if (timers[key] !== null) clearInterval(timers[key]);
         delete timers[key];
       }
+      if (key == 39) { // if released button is right
+        rightSteps = 0;
+        if (leftSteps < 1) {
+          robotElement.querySelector('.robot_image').src = faceRightRobot;
+        }
+        if (runningRightInterval !== null) {
+          clearInterval(runningRightInterval);
+          runningRightInterval = null;
+        }
+      }
+      if (key == 37) { // if relased button is left
+        leftSteps = 0;
+        if (rightSteps < 1) {
+          robotElement.querySelector('.robot_image').src = faceLeftRobot;
+        }
+        if (runningLeftInterval !== null) {
+          clearInterval(runningLeftInterval);
+          runningLeftInterval = null;
+        }
+      }
+
+      if (!(timers[39]) || !(timers[37])) { // if no movement key is pressed, we stop run sound
+        runSound.pause();
+        runSound.currentTime = 0;
+        runSoundOn = false;
+      }
     };
 
     // When window is unfocused we may not get key events. To prevent this
@@ -69,6 +105,12 @@ const Robot = () => {
       // eslint-disable-next-line no-restricted-syntax
       for (key in timers) if (timers[key] !== null) clearInterval(timers[key]);
       timers = {};
+
+      rightSteps = 0;
+      leftSteps = 0;
+      runSound.pause();
+      runSound.currentTime = 0;
+      runSoundOn = false;
     };
   };
 
@@ -91,7 +133,6 @@ const Robot = () => {
   );
   // 200 originally, (works best with 50 or 100)
 
-  const runSound = new Audio(runAudio);
   const jumpSound = new Audio(jumpAudio);
 
   const goJump = () => {
@@ -100,7 +141,13 @@ const Robot = () => {
       // console.log("can't jump");
     }
     else {
-      robot.querySelector('.robot_image').src = jumpRobot;
+      if (rightDirection) {
+        robot.querySelector('.robot_image').src = jumpRobotRight;
+      }
+      else {
+        robot.querySelector('.robot_image').src = jumpRobotLeft;
+      }
+
       jumpSound.play();
       robot.style.animationName = 'jump';
       jumping = true;
@@ -112,12 +159,27 @@ const Robot = () => {
       setTimeout(() => {
         nearlyDown = true; // now player nearly reached the floor
         if (!lost) {
-          runSound.play();
+          // runSound.play();
         }
       }, 700);
       setTimeout(() => {
         if (!lost) {
-          robot.querySelector('.robot_image').src = runRobot;
+          if (rightDirection) {
+            if (rightSteps > 0) {
+              robot.querySelector('.robot_image').src = runRobotRight;
+            }
+            else {
+              robot.querySelector('.robot_image').src = faceRightRobot;
+            }
+          }
+          if (!rightDirection) {
+            if (leftSteps > 0) {
+              robot.querySelector('.robot_image').src = runRobotLeft;
+            }
+            else {
+              robot.querySelector('.robot_image').src = faceLeftRobot;
+            }
+          }
         }
         robot.style.animationName = '';
         jumping = false;
@@ -191,7 +253,7 @@ const Robot = () => {
           coin.classList.add('collected');
           coinCollectSound.currentTime = 0;
           coinCollectSound.play();
-          console.log("joué");
+
           score += 50;
           document.querySelector('.score').textContent = score;
           setTimeout(() => {
@@ -213,7 +275,6 @@ const Robot = () => {
         const cityPosition = city.getBoundingClientRect();
         const differenceLeft = cityPosition.left - robotPosition.right;
         // let differenceRight
-        console.log(differenceLeft);
         const citySound = !!city.className.includes('city-sound');
 
         if (!citySound && differenceLeft < 400) {
@@ -292,6 +353,9 @@ const Robot = () => {
   let left = 0;
 
   let movesAfterFall = 0;
+  let runningRightInterval = null;
+  let runSoundOn = false;
+
   const goRight = () => {
     if (lost && movesAfterFall === 5) { // player can keep the button 'right' pushed and
     // move up to 5 times after he fall but if he releases button then push it again,
@@ -302,6 +366,22 @@ const Robot = () => {
       movesAfterFall += 1;
     }
     const robot = document.querySelector('.robot');
+    rightDirection = true;
+
+    rightSteps += 1;
+
+    if (rightSteps == 1) {
+      robot.querySelector('.robot_image').src = runRobotRight;
+    }
+
+    if (!runSoundOn && !jumping) {
+      runSound.play();
+      runSoundOn = true;
+      runningRightInterval = setInterval(() => {
+        runSound.currentTime = 0;
+      }, 13100);
+    }
+
     const screenWidth = window.innerWidth;
 
     // const leftPx = robot.style.left;    // works with left ≠ transform
@@ -319,12 +399,28 @@ const Robot = () => {
     }
   };
 
+  let runningLeftInterval = null;
+
   const goLeft = () => {
     if (lost) {
       return;
     }
-
+    leftSteps += 1;
+    rightDirection = false;
     const robot = document.querySelector('.robot');
+    // if (leftSteps < 2) {
+    //   robot.querySelector('.robot_image').src = faceLeftRobot;
+    // }
+    if (leftSteps == 1) {
+      robot.querySelector('.robot_image').src = runRobotLeft;
+    }
+    if (!runSoundOn && !jumping) {
+      runSound.play();
+      runSoundOn = true;
+      runningLeftInterval = setInterval(() => {
+        runSound.currentTime = 0;
+      }, 13100);
+    }
     // const leftPx = robot.style.left;
     // const left = leftPx.split('px')[0];
 
@@ -368,11 +464,6 @@ const Robot = () => {
   useEffect(() => {
     robotElement = document.querySelector('.robot');
     runSound.volume = 0.2;
-    runSound.play();
-
-    runInterval = setInterval(() => {
-      runSound.currentTime = 0;
-    }, 13100);
 
     isCollide();
   }, []);
@@ -380,7 +471,7 @@ const Robot = () => {
   return (
     <>
       <div className="robot rbt" style={{ left: '50px' }}> {/* style={{ left: `${left}px` }} */}
-        <img src={runRobot} className="robot_image" alt="" />
+        <img src={faceRightRobot} className="robot_image" alt="" />
       </div>
       <p className="score">0</p>
     </>
