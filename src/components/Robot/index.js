@@ -11,7 +11,12 @@ import runRobotRight from 'src/assets/images/run_robot_right.gif';
 import runRobotLeft from 'src/assets/images/run_robot_left.gif';
 import jumpRobotRight from 'src/assets/images/rbt-new-jump-right.gif';
 import jumpRobotLeft from 'src/assets/images/rbt-new-jump-left.gif';
-import fallRobot from 'src/assets/images/robot_fall_px.gif';
+
+import shootStayLeft from 'src/assets/images/rbt_stay_shoot-left.gif';
+import shootStayRight from 'src/assets/images/rbt_stay_shoot-right.gif';
+
+import fallRobotRight from 'src/assets/images/robot_fall_right.gif';
+import fallRobotLeft from 'src/assets/images/robot_fall_left.gif';
 import miniRobotStop from 'src/assets/images/mini-robot-good.png';
 import glitter from 'src/assets/images/glitter.gif';
 import coinGif from 'src/assets/images/coin.gif';
@@ -59,6 +64,10 @@ const Robot = () => {
         keys[key]();
         if (repeat !== 0) timers[key] = setInterval(keys[key], repeat);
       }
+      // if (!(timers[39]) && !(timers[37])) {
+      //   robotElement.querySelector('.robot_image').src = faceRightRobot;
+      //   return true;
+      // }
       return false;
     };
 
@@ -72,7 +81,7 @@ const Robot = () => {
       }
       if (key == 39) { // if released button is right
         rightSteps = 0;
-        if (leftSteps < 1) {
+        if (leftSteps < 1 && !lost) {
           robotElement.querySelector('.robot_image').src = faceRightRobot;
         }
         if (runningRightInterval !== null) {
@@ -82,7 +91,7 @@ const Robot = () => {
       }
       if (key == 37) { // if relased button is left
         leftSteps = 0;
-        if (rightSteps < 1) {
+        if (rightSteps < 1 && !lost) {
           robotElement.querySelector('.robot_image').src = faceLeftRobot;
         }
         if (runningLeftInterval !== null) {
@@ -126,12 +135,32 @@ const Robot = () => {
         goRight();
       },
       32() {
-        goJump();
+        shootGun();
       },
     },
     75,
   );
   // 200 originally, (works best with 50 or 100)
+  let shooting = false;
+  const shootGun = () => {
+    if (shooting) {
+      return;
+    }
+    if (rightDirection) {
+      shooting = true;
+      robotElement.querySelector('.robot_image').src = shootStayRight;
+      setTimeout(() => {
+        shooting = false;
+      }, 400);
+    }
+    else {
+      shooting = true;
+      robotElement.querySelector('.robot_image').src = shootStayLeft;
+      setTimeout(() => {
+        shooting = false;
+      }, 400);
+    }
+  };
 
   const jumpSound = new Audio(jumpAudio);
 
@@ -196,13 +225,18 @@ const Robot = () => {
   let robotElement;
 
   const gameOver = (intervalID) => {
-    robotElement.querySelector('.robot_image').src = fallRobot;
+    if (rightDirection) {
+      robotElement.querySelector('.robot_image').src = fallRobotRight;
+    }
+    else {
+      robotElement.querySelector('.robot_image').src = fallRobotLeft;
+    }
 
     lost = true;
     clearInterval(intervalID);
     setTimeout(() => {
       document.querySelector('.bg--1').style.animationPlayState = 'paused';
-      document.querySelector('.bg--2').style.animationPlayState = 'paused';
+      // document.querySelector('.bg--2').style.animationPlayState = 'paused';
       robotElement.style.filter = 'drop-shadow(1px 3px 2px rgba(0, 0, 0, .8))';
       runSound.pause();
       clearInterval(runInterval);
@@ -234,7 +268,7 @@ const Robot = () => {
 
   const coinCollectSound = new Audio(coinCollectAudio);
   const cityCrowdSound = new Audio(cityAudio);
-  
+
   const isCollide = () => {
     // for (let i = 1; i <= 100 && lost === false; i += 1) {
     const intervalID = setInterval(() => {
@@ -251,8 +285,12 @@ const Robot = () => {
         if (!collected && differenceBottom < 30 && differenceLeft < 30 && differenceLeft > -55) {
           coin.style.backgroundImage = `url(${glitter})`;
           coin.classList.add('collected');
+          
           coinCollectSound.currentTime = 0;
           coinCollectSound.play();
+          setTimeout(() => {
+            coin.classList.add('opacity');
+          }, 500);
 
           score += 50;
           document.querySelector('.score').textContent = score;
@@ -260,15 +298,16 @@ const Robot = () => {
             if (!lost) { // we recreate the coin
               coin.style.backgroundImage = `url(${coinGif})`;
               coin.classList.remove('collected');
+              coin.classList.remove('opacity');
             }
           }, 10000);
         }
       });
 
-      if (!lost) {
-        score += 1;
-        document.querySelector('.score').textContent = score;
-      }
+      // if (!lost) {
+        // score += 1;
+        // document.querySelector('.score').textContent = score;
+      // }
 
       const nightCities = document.querySelectorAll('.crowd');
       nightCities.forEach((city) => {
@@ -357,7 +396,8 @@ const Robot = () => {
   let runSoundOn = false;
 
   const goRight = () => {
-    if (lost && movesAfterFall === 5) { // player can keep the button 'right' pushed and
+    // eslint-disable-next-line max-len
+    if ((lost && movesAfterFall === 5) || leftSteps > 0) { // player can keep the button 'right' pushed and
     // move up to 5 times after he fall but if he releases button then push it again,
     // it won't work even if movesAfterFall is smaller than 5.
       return;
@@ -365,12 +405,20 @@ const Robot = () => {
     if (lost) {
       movesAfterFall += 1;
     }
+    // const background = document.querySelector('.bg--1');
+    // const bgLeftValue = background.style.left.split('px')[0];
+    // background.style.left = `${bgLeftValue - 30}px`;
+
     const robot = document.querySelector('.robot');
     rightDirection = true;
 
     rightSteps += 1;
 
     if (rightSteps == 1) {
+      robot.querySelector('.robot_image').src = runRobotRight;
+    }
+
+    if (rightSteps > 1 && !lost && robot.querySelector('.robot_image').getAttribute('src') != runRobotRight) {
       robot.querySelector('.robot_image').src = runRobotRight;
     }
 
@@ -384,25 +432,23 @@ const Robot = () => {
 
     const screenWidth = window.innerWidth;
 
-    // const leftPx = robot.style.left;    // works with left ≠ transform
-    // const left = leftPx.split('px')[0];
-
-    // const leftPx = robot.style.transform; // works with transformX;
-    // eslint-disable-next-line prefer-destructuring
-    // left = leftPx.split('px')[0];
-
-    if (screenWidth - left > 490) {
-      // const newLeft = `${parseInt(left, 10) + 30}px`;
-      // robot.style.left = newLeft;
-      left = `${parseInt(left, 10) + 30}`;
-      robot.style.transform = `translateX(${left}px)`;
+    if (screenWidth - left > 1000) { // 490 originally
+    left = `${parseInt(left, 10) + 30}`;
+    robot.style.transform = `translateX(${left}px)`;
     }
+
+    if (screenWidth - left < 1000) { // 490 originally
+      const background = document.querySelector('.bg--1');
+      const bgLeftValue = background.style.left.split('px')[0];
+      background.style.left = `${bgLeftValue - 30}px`;
+    }
+    
   };
 
   let runningLeftInterval = null;
 
   const goLeft = () => {
-    if (lost) {
+    if (lost || rightSteps > 0) {
       return;
     }
     leftSteps += 1;
@@ -412,6 +458,9 @@ const Robot = () => {
     //   robot.querySelector('.robot_image').src = faceLeftRobot;
     // }
     if (leftSteps == 1) {
+      robot.querySelector('.robot_image').src = runRobotLeft;
+    }
+    if (leftSteps > 1 && !lost && robot.querySelector('.robot_image').getAttribute('src') != runRobotLeft) {
       robot.querySelector('.robot_image').src = runRobotLeft;
     }
     if (!runSoundOn && !jumping) {

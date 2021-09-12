@@ -14,10 +14,8 @@ import './styles.scss';
 const Field = () => (
   <div className="field">
 
-    <div className="bg-container bg--2">
-    <img className="bg labo background3" src={laboStart} alt="" />
-      {/* <img className="bg labo background2" src={laboratory} alt="" /> */}
-      {/* <img className="bg labo background3" src={laboratory} alt="" /> */}
+    {/* <div className="bg-container bg--2">
+      <img className="bg labo background3" src={laboStart} alt="" />
       <img className="bg labo background opacity" src={laboEnd} alt="" />
       <img className="bg night-city opacity" src={nightCity} alt="" />
       <img className="bg night-city opacity" src={nightCity} alt="" />
@@ -28,9 +26,9 @@ const Field = () => (
       <img className="bg night-city opacity" src={nightCity} alt="" />
       <img className="bg night-city opacity" src={nightCity} alt="" />
       <img className="bg labo background3" src={laboStart} alt="" />
-    </div>
+    </div> */}
 
-    <div className="bg-container bg--1">
+    <div className="bg-container bg--1" style={{ left: '0px' }}>
       <img className="bg labo background3" src={laboStart} alt="" />
       {/* <img className="bg labo background2" src={laboratory} alt="" /> */}
       {/* <img className="bg labo background3" src={laboratory} alt="" /> */}

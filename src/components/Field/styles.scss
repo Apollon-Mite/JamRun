@@ -46,7 +46,7 @@
   // left: 0;
   display: flex;
 
-
+  transition: .2s;
   // transition: left 10s;
   transform: translate3d(0, 0, 0);   /* Hey browser, use your GPU */
 
