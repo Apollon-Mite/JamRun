@@ -15,6 +15,9 @@ import jumpRobotLeft from 'src/assets/images/rbt-new-jump-left.gif';
 import shootStayLeft from 'src/assets/images/rbt_stay_shoot-left.gif';
 import shootStayRight from 'src/assets/images/rbt_stay_shoot-right.gif';
 
+import crouchRight from 'src/assets/images/rbt_sit_right.gif';
+import crouchLeft from 'src/assets/images/rbt_sit_left.gif';
+
 import fallRobotRight from 'src/assets/images/robot_fall_right.gif';
 import fallRobotLeft from 'src/assets/images/robot_fall_left.gif';
 import miniRobotStop from 'src/assets/images/mini-robot-good.png';
@@ -99,6 +102,15 @@ const Robot = () => {
           runningLeftInterval = null;
         }
       }
+      if (key == 40) { // if he stands up after crouching
+        if (rightDirection) {
+          robotElement.querySelector('.robot_image').src = faceRightRobot;
+        }
+        else {
+          robotElement.querySelector('.robot_image').src = faceLeftRobot;
+        }
+        crouching = false;
+      }
 
       if (!(timers[39]) || !(timers[37])) { // if no movement key is pressed, we stop run sound
         runSound.pause();
@@ -125,22 +137,41 @@ const Robot = () => {
 
   KeyboardController(
     {
-      37() {
+      37() { // left
         goLeft();
       },
-      38() {
+      38() { // up
         goJump();
       },
-      39() {
+      39() { // right
         goRight();
       },
-      32() {
+      40() { // down
+        crouch();
+      },
+      32() { // space bar
         shootGun();
       },
     },
     75,
   );
   // 200 originally, (works best with 50 or 100)
+
+  let crouching = false;
+  const crouch = () => {
+    if (crouching) {
+      return;
+    }
+    if (rightDirection) {
+      robotElement.querySelector('.robot_image').src = crouchRight;
+      crouching = true;
+    }
+    else {
+      robotElement.querySelector('.robot_image').src = crouchLeft;
+      crouching = true;
+    }
+  };
+
   let shooting = false;
   const shootGun = () => {
     if (shooting) {
