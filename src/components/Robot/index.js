@@ -15,8 +15,11 @@ import jumpRobotLeft from 'src/assets/images/rbt-new-jump-left.gif';
 import shootStayLeft from 'src/assets/images/rbt_stay_shoot-left.gif';
 import shootStayRight from 'src/assets/images/rbt_stay_shoot-right.gif';
 
-import crouchRight from 'src/assets/images/rbt_sit_right.gif';
-import crouchLeft from 'src/assets/images/rbt_sit_left.gif';
+import stayToCrouchRight from 'src/assets/images/rbt_sit_right.gif';
+import stayToCrouchLeft from 'src/assets/images/rbt_sit_left.gif';
+
+import crouchingRight from 'src/assets/images/rbt_sit_right-px.png';
+import rouchingLeft from 'src/assets/images/rbt_sit_left-px.png';
 
 import fallRobotRight from 'src/assets/images/robot_fall_right.gif';
 import fallRobotLeft from 'src/assets/images/robot_fall_left.gif';
@@ -84,7 +87,7 @@ const Robot = () => {
       }
       if (key == 39) { // if released button is right
         rightSteps = 0;
-        if (leftSteps < 1 && !lost) {
+        if (leftSteps < 1 && !lost && !crouching) {
           robotElement.querySelector('.robot_image').src = faceRightRobot;
         }
         if (runningRightInterval !== null) {
@@ -94,7 +97,7 @@ const Robot = () => {
       }
       if (key == 37) { // if relased button is left
         leftSteps = 0;
-        if (rightSteps < 1 && !lost) {
+        if (rightSteps < 1 && !lost && !crouching) {
           robotElement.querySelector('.robot_image').src = faceLeftRobot;
         }
         if (runningLeftInterval !== null) {
@@ -103,10 +106,10 @@ const Robot = () => {
         }
       }
       if (key == 40) { // if he stands up after crouching
-        if (rightDirection) {
+        if (rightDirection && !lost) {
           robotElement.querySelector('.robot_image').src = faceRightRobot;
         }
-        else {
+        if (!rightDirection && !lost) {
           robotElement.querySelector('.robot_image').src = faceLeftRobot;
         }
         crouching = false;
@@ -159,15 +162,15 @@ const Robot = () => {
 
   let crouching = false;
   const crouch = () => {
-    if (crouching) {
+    if (crouching || lost) {
       return;
     }
     if (rightDirection) {
-      robotElement.querySelector('.robot_image').src = crouchRight;
+      robotElement.querySelector('.robot_image').src = stayToCrouchRight;
       crouching = true;
     }
     else {
-      robotElement.querySelector('.robot_image').src = crouchLeft;
+      robotElement.querySelector('.robot_image').src = stayToCrouchLeft;
       crouching = true;
     }
   };
@@ -256,6 +259,7 @@ const Robot = () => {
   let robotElement;
 
   const gameOver = (intervalID) => {
+    lost = true;
     if (rightDirection) {
       robotElement.querySelector('.robot_image').src = fallRobotRight;
     }
@@ -263,7 +267,6 @@ const Robot = () => {
       robotElement.querySelector('.robot_image').src = fallRobotLeft;
     }
 
-    lost = true;
     clearInterval(intervalID);
     setTimeout(() => {
       document.querySelector('.bg--1').style.animationPlayState = 'paused';
@@ -445,12 +448,16 @@ const Robot = () => {
 
     rightSteps += 1;
 
-    if (rightSteps == 1) {
+    if (rightSteps == 1 && !crouching) {
       robot.querySelector('.robot_image').src = runRobotRight;
     }
 
     if (rightSteps > 1 && !lost && robot.querySelector('.robot_image').getAttribute('src') != runRobotRight) {
       robot.querySelector('.robot_image').src = runRobotRight;
+    }
+
+    if (crouching && !lost) {
+      robot.querySelector('.robot_image').src = crouchingRight;
     }
 
     if (!runSoundOn && !jumping) {
@@ -463,17 +470,16 @@ const Robot = () => {
 
     const screenWidth = window.innerWidth;
 
-    if (screenWidth - left > 1000) { // 490 originally
-    left = `${parseInt(left, 10) + 30}`;
-    robot.style.transform = `translateX(${left}px)`;
+    if (screenWidth - left > 1000 && !(crouching && rightSteps < 3)) { // 490 originally
+      left = `${parseInt(left, 10) + 30}`;
+      robot.style.transform = `translateX(${left}px)`;
     }
 
-    if (screenWidth - left < 1000) { // 490 originally
+    if (screenWidth - left < 1000 && !(crouching && rightSteps < 3)) { // 490 originally
       const background = document.querySelector('.bg--1');
       const bgLeftValue = background.style.left.split('px')[0];
       background.style.left = `${bgLeftValue - 30}px`;
     }
-    
   };
 
   let runningLeftInterval = null;
@@ -488,11 +494,14 @@ const Robot = () => {
     // if (leftSteps < 2) {
     //   robot.querySelector('.robot_image').src = faceLeftRobot;
     // }
-    if (leftSteps == 1) {
+    if (leftSteps == 1 && !crouching) {
       robot.querySelector('.robot_image').src = runRobotLeft;
     }
     if (leftSteps > 1 && !lost && robot.querySelector('.robot_image').getAttribute('src') != runRobotLeft) {
       robot.querySelector('.robot_image').src = runRobotLeft;
+    }
+    if (crouching && !lost) {
+      robot.querySelector('.robot_image').src = rouchingLeft;
     }
     if (!runSoundOn && !jumping) {
       runSound.play();
@@ -503,8 +512,7 @@ const Robot = () => {
     }
     // const leftPx = robot.style.left;
     // const left = leftPx.split('px')[0];
-
-    if (left >= 0) {
+    if (left >= 0 && !(crouching && leftSteps < 3)) { // s'il est tourné à droite, la première fois qu'il se retourne à gauche, ça ne doit pas le faire bouger
       // const newLeft = `${parseInt(left, 10) - 30}px`;
       // robot.style.left = newLeft;
       left = `${parseInt(left, 10) - 30}`;
