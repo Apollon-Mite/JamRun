@@ -124,7 +124,49 @@
 }
 
 
+.bullet {
+  width: 50px;
+  height: 20px;
+  background-image: url('../../assets/images/laser_shot.png');
+  background-position: center;
+  background-size: 50px 20px;
+  background-repeat: no-repeat;
+  position: absolute;
+  z-index: 2000;
+}
 
+.bullet--stay {
+  bottom: 176px;
+}
+
+.bullet--sit {
+  bottom: 146px;
+}
+
+
+.bullet--right {
+  animation: shoot_bullet_right;
+  animation-duration: .8s;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+}
+@keyframes shoot_bullet_right {
+  to {
+    transform: translateX(100vw);
+  }
+}
+
+.bullet--left {
+  animation: shoot_bullet_left;
+  animation-duration: .8s;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+}
+@keyframes shoot_bullet_left {
+  to {
+    transform: translateX(-100vw);
+  }
+}
 
 
 // @keyframes shadow {

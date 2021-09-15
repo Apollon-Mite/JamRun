@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 /* eslint-disable eqeqeq */
 /* eslint-disable consistent-return */
 /* eslint-disable no-use-before-define */
@@ -18,14 +19,16 @@ import shootStayRight from 'src/assets/images/rbt_stay_shoot-right.gif';
 import stayToCrouchRight from 'src/assets/images/rbt_sit_right.gif';
 import stayToCrouchLeft from 'src/assets/images/rbt_sit_left.gif';
 
-import crouchingRight from 'src/assets/images/rbt_sit_right-px.png';
-import rouchingLeft from 'src/assets/images/rbt_sit_left-px.png';
+import crouchingRight from 'src/assets/images/rbt_sitting_right.gif';
+import crouchingLeft from 'src/assets/images/rbt_sitting_left.gif';
 
 import fallRobotRight from 'src/assets/images/robot_fall_right.gif';
 import fallRobotLeft from 'src/assets/images/robot_fall_left.gif';
 import miniRobotStop from 'src/assets/images/mini-robot-good.png';
 import glitter from 'src/assets/images/glitter.gif';
 import coinGif from 'src/assets/images/coin.gif';
+import laserAudio from 'src/assets/audio/laser_sound.mp3';
+
 import cityAudio from 'src/assets/audio/city-night-crowd.mp3';
 import coinCollectAudio from 'src/assets/audio/collect_coin.mp3';
 import explosionAudio from 'src/assets/audio/explosion.mp3';
@@ -106,13 +109,14 @@ const Robot = () => {
         }
       }
       if (key == 40) { // if he stands up after crouching
+        crouching = false;
+
         if (rightDirection && !lost) {
           robotElement.querySelector('.robot_image').src = faceRightRobot;
         }
         if (!rightDirection && !lost) {
           robotElement.querySelector('.robot_image').src = faceLeftRobot;
         }
-        crouching = false;
       }
 
       if (!(timers[39]) || !(timers[37])) { // if no movement key is pressed, we stop run sound
@@ -175,25 +179,70 @@ const Robot = () => {
     }
   };
 
+  const laserShotSound = new Audio(laserAudio);
   let shooting = false;
   const shootGun = () => {
     if (shooting) {
       return;
     }
+    laserShotSound.volume = 0.3;
+    shooting = true;
+
+    const parentElement = document.querySelector('.robot-parent');
+    const newBullet = document.createElement('div');
+
+    console.log("left: ",robotElement.style.transform);
+
+    const robotTransform1 = robotElement.style.transform.split('(')[1];
+    const robotLeft = robotTransform1.split('px)')[0];
+    laserShotSound.currentTime = 0;
+
     if (rightDirection) {
-      shooting = true;
-      robotElement.querySelector('.robot_image').src = shootStayRight;
-      setTimeout(() => {
-        shooting = false;
-      }, 400);
+      if (crouching) {
+        // todo ajouter l'animation de tir assis
+        setTimeout(() => {
+          newBullet.classList.add('bullet', 'bullet--right', 'bullet--sit');
+          laserShotSound.play();
+          newBullet.style.transform = `translateX(${parseInt(robotLeft, 10) + 180}px)`;
+        }, 100);
+      }
+
+      else {
+        robotElement.querySelector('.robot_image').src = shootStayRight;
+        setTimeout(() => {
+          newBullet.classList.add('bullet', 'bullet--right', 'bullet--stay');
+          laserShotSound.play();
+          newBullet.style.transform = `translateX(${parseInt(robotLeft, 10) + 180}px)`;
+        }, 100);
+      }
     }
-    else {
-      shooting = true;
-      robotElement.querySelector('.robot_image').src = shootStayLeft;
-      setTimeout(() => {
-        shooting = false;
-      }, 400);
+    if (!rightDirection) {
+      if (crouching) {
+        // todo ajouter l'animation de tir assis
+        setTimeout(() => {
+          newBullet.classList.add('bullet', 'bullet--left', 'bullet--sit');
+          laserShotSound.play();
+          newBullet.style.transform = `translateX(${parseInt(robotLeft, 10) + 20}px)`;
+        }, 100);
+      }
+
+      else {
+        robotElement.querySelector('.robot_image').src = shootStayLeft;
+        setTimeout(() => {
+          newBullet.classList.add('bullet', 'bullet--left', 'bullet--stay');
+          laserShotSound.play();
+          newBullet.style.transform = `translateX(${parseInt(robotLeft, 10) + 20}px)`;
+        }, 100);
+      }
     }
+    parentElement.appendChild(newBullet);
+
+    setTimeout(() => {
+      shooting = false;
+    }, 400);
+    setTimeout(() => {
+      newBullet.parentNode.removeChild(newBullet);
+    }, 1000);
   };
 
   const jumpSound = new Audio(jumpAudio);
@@ -469,16 +518,27 @@ const Robot = () => {
     }
 
     const screenWidth = window.innerWidth;
-
-    if (screenWidth - left > 1000 && !(crouching && rightSteps < 3)) { // 490 originally
+    if (screenWidth - left > 1000 && !crouching && !(crouching && rightSteps < 3)) { // stand mode
       left = `${parseInt(left, 10) + 30}`;
       robot.style.transform = `translateX(${left}px)`;
     }
+    if (screenWidth - left > 1000 && crouching && !(crouching && rightSteps < 3)) { // crouched mode
+      left = `${parseInt(left, 10) + 10}`;
+      robot.style.transform = `translateX(${left}px)`;
+    }
 
-    if (screenWidth - left < 1000 && !(crouching && rightSteps < 3)) { // 490 originally
+    if (screenWidth - left < 1000 && !crouching && !(crouching && rightSteps < 3)) { // stand mode
       const background = document.querySelector('.bg--1');
       const bgLeftValue = background.style.left.split('px')[0];
       background.style.left = `${bgLeftValue - 30}px`;
+    }
+    // on a un souci, quand il est assis il ne veut pas avancer plus loin que le milieur de l'écran, il faut découvrir
+    // pourquoi la ligne 491 ne se déclenche pas.
+    // TODO console.log("screenWidth - left < 1000 :",screenWidth - left < 1000, "crouching" && !(crouching && rightSteps < 3));
+    if (screenWidth - left < 1000 && crouching && !(crouching && rightSteps < 3)) { // crouched mode
+      const background = document.querySelector('.bg--1');
+      const bgLeftValue = background.style.left.split('px')[0];
+      background.style.left = `${bgLeftValue - 10}px`;
     }
   };
 
@@ -501,7 +561,7 @@ const Robot = () => {
       robot.querySelector('.robot_image').src = runRobotLeft;
     }
     if (crouching && !lost) {
-      robot.querySelector('.robot_image').src = rouchingLeft;
+      robot.querySelector('.robot_image').src = crouchingLeft;
     }
     if (!runSoundOn && !jumping) {
       runSound.play();
@@ -512,10 +572,14 @@ const Robot = () => {
     }
     // const leftPx = robot.style.left;
     // const left = leftPx.split('px')[0];
-    if (left >= 0 && !(crouching && leftSteps < 3)) { // s'il est tourné à droite, la première fois qu'il se retourne à gauche, ça ne doit pas le faire bouger
+    if (left >= 0 && !crouching && !(crouching && leftSteps < 3)) { // s'il est tourné à droite, la première fois qu'il se retourne à gauche, ça ne doit pas le faire bouger
       // const newLeft = `${parseInt(left, 10) - 30}px`;
       // robot.style.left = newLeft;
       left = `${parseInt(left, 10) - 30}`;
+      robot.style.transform = `translateX(${left}px)`;
+    }
+    if (left >= 0 && crouching && !(crouching && leftSteps < 3)) {
+      left = `${parseInt(left, 10) - 10}`;
       robot.style.transform = `translateX(${left}px)`;
     }
   };
@@ -557,12 +621,13 @@ const Robot = () => {
   }, []);
 
   return (
-    <>
-      <div className="robot rbt" style={{ left: '50px' }}> {/* style={{ left: `${left}px` }} */}
+    <div className="robot-parent">
+      <div className="robot rbt" style={{ left: '50px', transform: 'translateX(0px)' }}> {/* style={{ left: `${left}px` }} */}
         <img src={faceRightRobot} className="robot_image" alt="" />
       </div>
+      {/* <div className="bullet bullet--right" /> */}
       <p className="score">0</p>
-    </>
+    </div>
   );
 };
 
