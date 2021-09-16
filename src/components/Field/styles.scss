@@ -82,26 +82,29 @@
   margin-top: -164px;
 }
 
-
+.mini-rbt {
+  // transition: 1s;
+}
 
 .mini-rbt--stop {
-  -webkit-transform: scaleX(-1) translate3d(0, 0, 0);   /* Hey browser, use your GPU */
-  transform: scaleX(-1) translate3d(0, 0, 0);   /* Hey browser, use your GPU */
+  -webkit-transform: translate3d(0, 0, 0);   /* Hey browser, use your GPU */
+  transform: translate3d(0, 0, 0);   /* Hey browser, use your GPU */
   background-image: url('../../assets/images/mini-robot-good.png')
 }
 
 .mini-rbt--move-left {
   background-image: url('../../assets/images/mini-robot-left.gif');
-  -webkit-animation: mini-robot-left 22s linear infinite;
-  animation: mini-robot-left 17s linear infinite;
-  transform: translate3d(0, 0, 0);   /* Hey browser, use your GPU */
+  // -webkit-animation: mini-robot-left 22s linear infinite;
+  // animation: mini-robot-left 17s linear infinite;
+  // transform: translate3d(0, 0, 0);   /* Hey browser, use your GPU */
 }
 
+
 .mini-rbt--move-right {
-  transform: scaleX(-1) translate3d(0, 0, 0);   /* Hey browser, use your GPU */
-  background-image: url('../../assets/images/mini-robot-left.gif');
-  -webkit-animation: mini-robot-right 22s linear infinite;
-  animation: mini-robot-right 17s linear infinite;
+  background-image: url('../../assets/images/mini-robot-right.gif');
+  // -webkit-animation: mini-robot-right 22s linear infinite;
+  // animation: mini-robot-right 17s linear infinite;
+  transform: translate3d(0, 0, 0);   /* Hey browser, use your GPU */
 }
 
 @-webkit-keyframes mini-robot-left {
@@ -122,9 +125,9 @@
 
 @-webkit-keyframes mini-robot-right {
   to {
-    -webkit-transform: scaleX(-1) translateX(-1000%); /* Ch <36, Saf 5.1+, iOS < 9.2, An =<4.4.4 */
-    -ms-transform: scaleX(-1) translateX(-1000%); /* IE 9 */
-    transform: scaleX(-1) translateX(-1000%); /* IE 10, Fx 16+, Op 12.1+ */
+    -webkit-transform: translateX(-1000%); /* Ch <36, Saf 5.1+, iOS < 9.2, An =<4.4.4 */
+    -ms-transform: translateX(-1000%); /* IE 9 */
+    transform: translateX(-1000%); /* IE 10, Fx 16+, Op 12.1+ */
   }
 }
 

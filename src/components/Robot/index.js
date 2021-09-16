@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable prefer-destructuring */
 /* eslint-disable eqeqeq */
 /* eslint-disable consistent-return */
@@ -15,6 +16,8 @@ import jumpRobotLeft from 'src/assets/images/rbt-new-jump-left.gif';
 
 import shootStayLeft from 'src/assets/images/rbt_stay_shoot-left.gif';
 import shootStayRight from 'src/assets/images/rbt_stay_shoot-right.gif';
+
+import shootSitRight from 'src/assets/images/rbt_sit_shoot-right2.gif';
 
 import stayToCrouchRight from 'src/assets/images/rbt_sit_right.gif';
 import stayToCrouchLeft from 'src/assets/images/rbt_sit_left.gif';
@@ -36,6 +39,7 @@ import loseAudio from 'src/assets/audio/you_lose.mp3';
 import finishHim from 'src/assets/audio/finish-him.mp3';
 import fatality from 'src/assets/audio/fatality.mp3';
 import runAudio from 'src/assets/audio/running.mp3';
+import crouchWalkAudio from 'src/assets/audio/crouch walk.mp3';
 import fallAudio from 'src/assets/audio/fall_sound.mp3';
 import jumpAudio from 'src/assets/audio/jump.mp3';
 
@@ -97,6 +101,12 @@ const Robot = () => {
           clearInterval(runningRightInterval);
           runningRightInterval = null;
         }
+        if (crouchWalkSoundOn) {
+          clearInterval(crouchWalkingRightInterval);
+          crouchWalkSound.pause();
+          crouchWalkSound.currentTime = 0;
+          crouchWalkSoundOn = false;
+        }
       }
       if (key == 37) { // if relased button is left
         leftSteps = 0;
@@ -107,16 +117,30 @@ const Robot = () => {
           clearInterval(runningLeftInterval);
           runningLeftInterval = null;
         }
+
+        if (crouchWalkSoundOn) {
+          clearInterval(crouchWalkingLeftInterval);
+          crouchWalkSound.pause();
+          crouchWalkSound.currentTime = 0;
+          crouchWalkSoundOn = false;
+        }
       }
       if (key == 40) { // if he stands up after crouching
         crouching = false;
 
         if (rightDirection && !lost) {
           robotElement.querySelector('.robot_image').src = faceRightRobot;
+          clearInterval(crouchWalkingRightInterval);
+          crouchWalkingRightInterval = null;
         }
         if (!rightDirection && !lost) {
           robotElement.querySelector('.robot_image').src = faceLeftRobot;
+          clearInterval(crouchWalkingLeftInterval);
+          crouchWalkingLeftInterval = null;
         }
+        crouchWalkSound.pause();
+        crouchWalkSound.currentTime = 0;
+        crouchWalkSoundOn = false;
       }
 
       if (!(timers[39]) || !(timers[37])) { // if no movement key is pressed, we stop run sound
@@ -177,7 +201,94 @@ const Robot = () => {
       robotElement.querySelector('.robot_image').src = stayToCrouchLeft;
       crouching = true;
     }
+
+    if (runningLeftInterval !== null) {
+      clearInterval(runningLeftInterval);
+      runningLeftInterval = null;
+    }
+    if (runningRightInterval !== null) {
+      clearInterval(runningRightInterval);
+      runningRightInterval = null;
+    }
+    runSound.pause();
+    runSound.currentTime = 0;
+    runSoundOn = false;
   };
+
+
+
+
+
+
+
+  const bulletCollision = (bullet, crouch) => {
+    const bulletTest = setInterval(() => {
+      // const coins = document.querySelectorAll('.coin');
+      // coins.forEach((coin) => {
+      //   const coinPosition = coin.getBoundingClientRect();
+      //   const differenceLeft = coinPosition.left - robotPosition.right;
+      //   const differenceBottom = robotPosition.top - coinPosition.bottom;
+      // });
+      const bulletPosition = bullet.getBoundingClientRect();
+      const allMiniRobots = document.querySelectorAll('.mini-rbt');
+
+      allMiniRobots.forEach((miniRobot) => {
+        const miniRobotPosition = miniRobot.getBoundingClientRect();
+        const distanceBetween = miniRobotPosition.left - bulletPosition.right;
+
+        if (crouch && distanceBetween < 25 && distanceBetween > -20) {
+
+          // miniRobot.className = ('mini-rbt darken obstacle-fall')
+          // if (miniRobot.classList.contains('mini-rbt--move-left')) {
+          //   miniRobot.classList.remove('mini-rbt--move-left')
+          // }
+          // if (miniRobot.classList.contains('mini-rbt--move-right')) {
+          //   miniRobot.classList.remove('mini-rbt--move-right')
+          // }
+          miniRobot.style.animationPlayState = 'paused';
+          // miniRobot.classList.add('obstacle-fall', 'darken');
+
+          // it will die if hit twice
+          // we are gonna save number of times it is hit in it's className
+          if (!miniRobot.classList.contains('mini-rbt--hit1')) {
+            miniRobot.classList.add('mini-rbt--hit1');
+            const miniRbtLeft = miniRobot.style.left.split('px')[0];
+            if (!miniRobot.classList.contains('mini-rbt--move-left')) {
+              miniRobot.style.left = `${parseInt(miniRbtLeft, 10) - 35}px`;
+            }
+            if (!miniRobot.classList.contains('mini-rbt--move-right')) {
+              miniRobot.style.left = `${parseInt(miniRbtLeft, 10) + 35}px`;
+            }
+            
+            // todo add some back movement when hit
+          }
+          else { // it has already been shot once, so now it dies
+            miniRobot.classList.add('darken', 'mini-robot-final-explosion');
+          }
+          if (!miniRobot.classList.contains('mini-robot-explode')) {
+            miniRobot.classList.add('mini-robot-explode');
+            setTimeout(() => {
+              miniRobot.classList.remove('mini-robot-explode');
+            }, 500);
+          }
+          
+          // bullet.classList.add('opacity');
+          bullet.parentNode.removeChild(bullet);
+        }
+      });
+    }, 10);
+    setTimeout(() => {
+      clearInterval(bulletTest);
+    }, 900);
+  };
+
+
+
+
+
+
+
+
 
   const laserShotSound = new Audio(laserAudio);
   let shooting = false;
@@ -191,15 +302,13 @@ const Robot = () => {
     const parentElement = document.querySelector('.robot-parent');
     const newBullet = document.createElement('div');
 
-    console.log("left: ",robotElement.style.transform);
-
     const robotTransform1 = robotElement.style.transform.split('(')[1];
     const robotLeft = robotTransform1.split('px)')[0];
     laserShotSound.currentTime = 0;
 
     if (rightDirection) {
       if (crouching) {
-        // todo ajouter l'animation de tir assis
+        robotElement.querySelector('.robot_image').src = shootSitRight;
         setTimeout(() => {
           newBullet.classList.add('bullet', 'bullet--right', 'bullet--sit');
           laserShotSound.play();
@@ -208,6 +317,7 @@ const Robot = () => {
       }
 
       else {
+        // todo ajouter l'animation de tir assis gauche
         robotElement.querySelector('.robot_image').src = shootStayRight;
         setTimeout(() => {
           newBullet.classList.add('bullet', 'bullet--right', 'bullet--stay');
@@ -237,11 +347,15 @@ const Robot = () => {
     }
     parentElement.appendChild(newBullet);
 
+    bulletCollision(newBullet, crouching);
+
     setTimeout(() => {
       shooting = false;
     }, 400);
     setTimeout(() => {
-      newBullet.parentNode.removeChild(newBullet);
+      if (newBullet != 'null') {
+        newBullet.parentNode.removeChild(newBullet);
+      }
     }, 1000);
   };
 
@@ -430,23 +544,31 @@ const Robot = () => {
         const differenceLeft = robotPosition.left - obstaclePosition.right;
 
         if (obstacle.className.includes('mini-rbt')) { // if it is a mini-robot
-          if (differenceLeft > -500 && differenceLeft < 100) {
+          if (differenceLeft > -500 && differenceLeft < 50) {
             obstacle.classList.remove('mini-rbt--stop');
-            // if (obstacle.className.includes('mini-rbt--move-right')) {
-            //   obstacle.classList.remove('mini-rbt--move-right');
-            // }
+            if (obstacle.className.includes('mini-rbt--move-right')) {
+              obstacle.classList.remove('mini-rbt--move-right');
+            }
             obstacle.classList.add('mini-rbt--move-left');
+
+            // new movement
+            const miniRbtLeft = obstacle.style.left.split('px')[0];
+            obstacle.style.left = `${parseInt(miniRbtLeft, 10) - 5}px`;
           }
-          if (differenceRight > 50) {
+          if (differenceRight >= 50) {
             obstacle.classList.remove('mini-rbt--move-left');
             obstacle.classList.add('mini-rbt--move-right');
 
-            setTimeout(() => {
-              if (!lost) {
-                obstacle.classList.remove('mini-rbt--move-right');
-                obstacle.classList.add('mini-rbt--stop');
-              }
-            }, 7000);
+            // new movement
+            const miniRbtLeft = obstacle.style.left.split('px')[0];
+            obstacle.style.left = `${parseInt(miniRbtLeft, 10) + 5}px`;
+
+            // setTimeout(() => {
+            //   if (!lost) {
+            //     obstacle.classList.remove('mini-rbt--move-right');
+            //     obstacle.classList.add('mini-rbt--stop');
+            //   }
+            // }, 7000);
           }
         }
 
@@ -477,6 +599,10 @@ const Robot = () => {
   let movesAfterFall = 0;
   let runningRightInterval = null;
   let runSoundOn = false;
+  const crouchWalkSound = new Audio(crouchWalkAudio);
+  let crouchWalkSoundOn = false;
+  let crouchWalkingRightInterval = null;
+  let crouchWalkingLeftInterval = null;
 
   const goRight = () => {
     // eslint-disable-next-line max-len
@@ -509,12 +635,19 @@ const Robot = () => {
       robot.querySelector('.robot_image').src = crouchingRight;
     }
 
-    if (!runSoundOn && !jumping) {
+    if (!runSoundOn && !jumping && !crouching) {
       runSound.play();
       runSoundOn = true;
       runningRightInterval = setInterval(() => {
         runSound.currentTime = 0;
       }, 13100);
+    }
+    if (crouching && !crouchWalkSoundOn) {
+      crouchWalkSound.play();
+      crouchWalkSoundOn = true;
+      crouchWalkingRightInterval = setInterval(() => {
+        crouchWalkSound.currentTime = 0;
+      }, 5000);
     }
 
     const screenWidth = window.innerWidth;
@@ -523,27 +656,24 @@ const Robot = () => {
       robot.style.transform = `translateX(${left}px)`;
     }
     if (screenWidth - left > 1000 && crouching && !(crouching && rightSteps < 3)) { // crouched mode
-      left = `${parseInt(left, 10) + 10}`;
+      left = `${parseInt(left, 10) + 5}`;
       robot.style.transform = `translateX(${left}px)`;
     }
 
-    if (screenWidth - left < 1000 && !crouching && !(crouching && rightSteps < 3)) { // stand mode
+    if (screenWidth - left <= 1000 && !crouching && !(crouching && rightSteps < 3)) { // stand mode
       const background = document.querySelector('.bg--1');
       const bgLeftValue = background.style.left.split('px')[0];
       background.style.left = `${bgLeftValue - 30}px`;
     }
-    // on a un souci, quand il est assis il ne veut pas avancer plus loin que le milieur de l'écran, il faut découvrir
-    // pourquoi la ligne 491 ne se déclenche pas.
-    // TODO console.log("screenWidth - left < 1000 :",screenWidth - left < 1000, "crouching" && !(crouching && rightSteps < 3));
-    if (screenWidth - left < 1000 && crouching && !(crouching && rightSteps < 3)) { // crouched mode
+
+    if (screenWidth - left <= 1000 && crouching && !(crouching && rightSteps < 3)) { // crouched mode
       const background = document.querySelector('.bg--1');
       const bgLeftValue = background.style.left.split('px')[0];
-      background.style.left = `${bgLeftValue - 10}px`;
+      background.style.left = `${bgLeftValue - 5}px`;
     }
   };
 
   let runningLeftInterval = null;
-
   const goLeft = () => {
     if (lost || rightSteps > 0) {
       return;
@@ -563,12 +693,19 @@ const Robot = () => {
     if (crouching && !lost) {
       robot.querySelector('.robot_image').src = crouchingLeft;
     }
-    if (!runSoundOn && !jumping) {
+    if (!runSoundOn && !jumping && !crouching) {
       runSound.play();
       runSoundOn = true;
       runningLeftInterval = setInterval(() => {
         runSound.currentTime = 0;
       }, 13100);
+    }
+    if (crouching && !crouchWalkSoundOn) {
+      crouchWalkSound.play();
+      crouchWalkSoundOn = true;
+      crouchWalkingLeftInterval = setInterval(() => {
+        crouchWalkSound.currentTime = 0;
+      }, 5000);
     }
     // const leftPx = robot.style.left;
     // const left = leftPx.split('px')[0];
@@ -579,7 +716,7 @@ const Robot = () => {
       robot.style.transform = `translateX(${left}px)`;
     }
     if (left >= 0 && crouching && !(crouching && leftSteps < 3)) {
-      left = `${parseInt(left, 10) - 10}`;
+      left = `${parseInt(left, 10) - 5}`;
       robot.style.transform = `translateX(${left}px)`;
     }
   };
