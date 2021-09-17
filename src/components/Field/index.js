@@ -55,16 +55,16 @@ const Field = () => (
 
 
       <div className="obstacle obs1 mini-rbt mini-rbt--stop" style={{ left: '1050px' }} />
-      {/* <div className="obstacle obs2 mini-rbt mini-rbt--stop" />
-      <div className="obstacle obs7 mini-rbt mini-rbt--stop" />
-      <div className="obstacle obs8 mini-rbt mini-rbt--stop" /> */}
+      <div className="obstacle obs2 mini-rbt mini-rbt--stop" style={{ left: '1900px' }} />
+      <div className="obstacle obs7 mini-rbt mini-rbt--stop" style={{ left: '5400px' }} />
+      <div className="obstacle obs8 mini-rbt mini-rbt--stop" style={{ left: '5700px' }} />
       
       
       {/* <div className="obstacle obs2 mini-robot-move-left" style={{ backgroundImage: `url(${miniRobotLeft})` }} /> */}
       <div className="obstacle obs3 garbage" style={{ backgroundImage: `url(${garbage})` }} />
       <div className="obstacle obs5 garbage" style={{ backgroundImage: `url(${garbage})` }} />
       <div className="obstacle obs6 garbage" style={{ backgroundImage: `url(${garbage})` }} />
-      {/* <div className="obstacle obs4 mini-rbt mini-rbt--stop" /* style={{ backgroundImage: `url(${miniRobotStop})` }}  /> */}
+      <div className="obstacle obs4 mini-rbt mini-rbt--stop" style={{ left: '4500px' }} />
     </div>
 
     {/* deuxième partie */}

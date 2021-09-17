@@ -66,7 +66,7 @@ const Robot = () => {
     // When key is pressed and we don't already think it's pressed, call the
     // key action callback and set a timer to generate another one after a delay
     //
-    document.onkeydown = function (event) {
+    document.onkeydown = (event) => {
       if (lost) { // we stop keys from working after player lost
         return;
       }
@@ -86,7 +86,7 @@ const Robot = () => {
 
     // Cancel timeout and mark key as released on keyup
     //
-    document.onkeyup = function (event) {
+    document.onkeyup = (event) => {
       const key = (event || window.event).keyCode;
       if (key in timers) {
         if (timers[key] !== null) clearInterval(timers[key]);
@@ -153,7 +153,7 @@ const Robot = () => {
     // When window is unfocused we may not get key events. To prevent this
     // causing a key to 'get stuck down', cancel all held keys
     //
-    window.onblur = function () {
+    window.onblur = () => {
       // eslint-disable-next-line no-restricted-syntax
       for (key in timers) if (timers[key] !== null) clearInterval(timers[key]);
       timers = {};
@@ -215,13 +215,10 @@ const Robot = () => {
     runSoundOn = false;
   };
 
-
-
-
-
-
-
-  const bulletCollision = (bullet, crouch) => {
+  const bulletCollision = (bullet, crouched) => {
+    if (bullet.classList.contains('opacity0')) { // it means it has already touched an ennemy
+      return; // the bullet must not impact more than one ennemy
+    }
     const bulletTest = setInterval(() => {
       // const coins = document.querySelectorAll('.coin');
       // coins.forEach((coin) => {
@@ -233,11 +230,14 @@ const Robot = () => {
       const allMiniRobots = document.querySelectorAll('.mini-rbt');
 
       allMiniRobots.forEach((miniRobot) => {
+        if (miniRobot.classList.contains('dead') || bullet.classList.contains('opacity0')) {
+          return;
+        }
         const miniRobotPosition = miniRobot.getBoundingClientRect();
         const distanceBetween = miniRobotPosition.left - bulletPosition.right;
 
-        if (crouch && distanceBetween < 25 && distanceBetween > -20) {
-
+        if (crouched && distanceBetween < 25 && distanceBetween > -20) {
+          // debugger;
           // miniRobot.className = ('mini-rbt darken obstacle-fall')
           // if (miniRobot.classList.contains('mini-rbt--move-left')) {
           //   miniRobot.classList.remove('mini-rbt--move-left')
@@ -245,8 +245,15 @@ const Robot = () => {
           // if (miniRobot.classList.contains('mini-rbt--move-right')) {
           //   miniRobot.classList.remove('mini-rbt--move-right')
           // }
-          miniRobot.style.animationPlayState = 'paused';
+          // miniRobot.style.animationPlayState = 'paused';
           // miniRobot.classList.add('obstacle-fall', 'darken');
+
+          if (!miniRobot.classList.contains('mini-robot-impact')) {
+            miniRobot.classList.add('mini-robot-impact');
+            setTimeout(() => {
+              miniRobot.classList.remove('mini-robot-impact');
+            }, 400);
+          }
 
           // it will die if hit twice
           // we are gonna save number of times it is hit in it's className
@@ -254,41 +261,38 @@ const Robot = () => {
             miniRobot.classList.add('mini-rbt--hit1');
             const miniRbtLeft = miniRobot.style.left.split('px')[0];
             if (!miniRobot.classList.contains('mini-rbt--move-left')) {
-              miniRobot.style.left = `${parseInt(miniRbtLeft, 10) - 35}px`;
+              miniRobot.style.left = `${parseInt(miniRbtLeft, 10) - 35}px`; // when it is hit, it moves back a little bit
             }
             if (!miniRobot.classList.contains('mini-rbt--move-right')) {
-              miniRobot.style.left = `${parseInt(miniRbtLeft, 10) + 35}px`;
+              miniRobot.style.left = `${parseInt(miniRbtLeft, 10) + 35}px`; // when it is hit, it moves back a little bit
             }
-            
-            // todo add some back movement when hit
           }
-          else { // it has already been shot once, so now it dies
-            miniRobot.classList.add('darken', 'mini-robot-final-explosion');
-          }
-          if (!miniRobot.classList.contains('mini-robot-explode')) {
-            miniRobot.classList.add('mini-robot-explode');
+          else /* (miniRobot.classList.contains('mini-rbt--hit1')) */ { // it has already been shot once, so now it dies
+            miniRobot.classList.add('mini-robot-final-explosion', 'dead'); // HIT TWICE
+            // increse score
+            score += 10;
+            document.querySelector('.score').textContent = score;
+
+            if (miniRobot.classList.contains('mini-rbt--move-right')) { // it stops from moving
+              miniRobot.classList.remove('mini-rbt--move-right');
+            }
+            if (miniRobot.classList.contains('mini-rbt--move-left')) { // it stops from moving
+              miniRobot.classList.remove('mini-rbt--move-left');
+            }
             setTimeout(() => {
-              miniRobot.classList.remove('mini-robot-explode');
-            }, 500);
+              miniRobot.parentNode.removeChild(miniRobot); // delete ennemy
+            }, 400);
           }
-          
-          // bullet.classList.add('opacity');
-          bullet.parentNode.removeChild(bullet);
+
+          bullet.classList.add('opacity0');
+          // bullet.parentNode.removeChild(bullet);
         }
       });
     }, 10);
     setTimeout(() => {
       clearInterval(bulletTest);
-    }, 900);
+    }, 500);
   };
-
-
-
-
-
-
-
-
 
   const laserShotSound = new Audio(laserAudio);
   let shooting = false;
@@ -482,7 +486,7 @@ const Robot = () => {
         if (!collected && differenceBottom < 30 && differenceLeft < 30 && differenceLeft > -55) {
           coin.style.backgroundImage = `url(${glitter})`;
           coin.classList.add('collected');
-          
+
           coinCollectSound.currentTime = 0;
           coinCollectSound.play();
           setTimeout(() => {
@@ -502,8 +506,8 @@ const Robot = () => {
       });
 
       // if (!lost) {
-        // score += 1;
-        // document.querySelector('.score').textContent = score;
+      // score += 1;
+      // document.querySelector('.score').textContent = score;
       // }
 
       const nightCities = document.querySelectorAll('.crowd');
@@ -544,6 +548,9 @@ const Robot = () => {
         const differenceLeft = robotPosition.left - obstaclePosition.right;
 
         if (obstacle.className.includes('mini-rbt')) { // if it is a mini-robot
+          if (obstacle.classList.contains('dead')) {
+            return;
+          }
           if (differenceLeft > -500 && differenceLeft < 50) {
             obstacle.classList.remove('mini-rbt--stop');
             if (obstacle.className.includes('mini-rbt--move-right')) {
@@ -636,6 +643,7 @@ const Robot = () => {
     }
 
     if (!runSoundOn && !jumping && !crouching) {
+      runSound.volume = 0.1;
       runSound.play();
       runSoundOn = true;
       runningRightInterval = setInterval(() => {
@@ -694,6 +702,7 @@ const Robot = () => {
       robot.querySelector('.robot_image').src = crouchingLeft;
     }
     if (!runSoundOn && !jumping && !crouching) {
+      runSound.volume = 0.2;
       runSound.play();
       runSoundOn = true;
       runningLeftInterval = setInterval(() => {
