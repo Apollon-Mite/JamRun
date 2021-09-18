@@ -128,60 +128,60 @@
   }
 }
 
-.mini-robot-impact {
-  // filter: brightness(0.3);
-  &::after {
-    content: "";
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    left: -10px;
-    bottom: 0;
-    // z-index: 20000;
-    // background-image: url('../../assets/images/explosion.gif');
-    // background-image: url('../../assets/images/hit.gif');
-    background-position: center;
-    background-size: 80px 100px;
-    background-repeat: no-repeat;
-    animation: background-impact 500ms forwards;
-  }
-}
+// .mini-robot-impact {
+//   // filter: brightness(0.3);
+//   &::after {
+//     content: "";
+//     position: absolute;
+//     width: 100%;
+//     height: 100%;
+//     left: -10px;
+//     bottom: 0;
+//     // z-index: 20000;
+//     // background-image: url('../../assets/images/explosion.gif');
+//     // background-image: url('../../assets/images/hit.gif');
+//     background-position: center;
+//     background-size: 80px 100px;
+//     background-repeat: no-repeat;
+//     animation: background-impact 500ms forwards;
+//   }
+// }
 
-@keyframes background-impact {
-  from {
-    background-image: none;
-  }
-  to {
-    background-image: url('../../assets/images/hit.gif');
-  }
-}
+// @keyframes background-impact {
+//   from {
+//     background-image: none;
+//   }
+//   to {
+//     background-image: url('../../assets/images/hit.gif');
+//   }
+// }
 
-.mini-robot-final-explosion {
+// .mini-robot-final-explosion {
 
-  &::after {
-    content: "";
-    position: absolute;
-    width: 85px;
-    height: 105px;
-    left: -28px;
-    bottom: -20px;
-    // z-index: 20000;
-    // background-image: url('../../assets/images/explosion.gif');
-    background-position: center;
-    background-size: 85px 105px;
-    background-repeat: no-repeat;
-    animation: background-explode 500ms forwards;
-  }
-}
+//   &::after {
+//     content: "";
+//     position: absolute;
+//     width: 85px;
+//     height: 105px;
+//     left: -28px;
+//     bottom: -20px;
+//     // z-index: 20000;
+//     // background-image: url('../../assets/images/explosion.gif');
+//     background-position: center;
+//     background-size: 85px 105px;
+//     background-repeat: no-repeat;
+//     animation: background-explode 500ms forwards;
+//   }
+// }
 
-@keyframes background-explode {
-  from {
-    background-image: none;
-  }
-  to {
-    background-image: url('../../assets/images/mini-explosion.gif');
-  }
-}
+// @keyframes background-explode {
+//   from {
+//     background-image: none;
+//   }
+//   to {
+//     background-image: url('../../assets/images/mini-explosion.gif');
+//   }
+// }
 
 .darken {
   filter: brightness(0.3);

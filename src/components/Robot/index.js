@@ -31,6 +31,7 @@ import miniRobotStop from 'src/assets/images/mini-robot-good.png';
 import glitter from 'src/assets/images/glitter.gif';
 import coinGif from 'src/assets/images/coin.gif';
 import impactGif from 'src/assets/images/hit.gif';
+import miniExplosion from 'src/assets/images/mini-explosion.gif';
 
 import laserAudio from 'src/assets/audio/laser_sound.mp3';
 import cityAudio from 'src/assets/audio/city-night-crowd.mp3';
@@ -221,12 +222,6 @@ const Robot = () => {
       return; // the bullet must not impact more than one ennemy
     }
     const bulletTest = setInterval(() => {
-      // const coins = document.querySelectorAll('.coin');
-      // coins.forEach((coin) => {
-      //   const coinPosition = coin.getBoundingClientRect();
-      //   const differenceLeft = coinPosition.left - robotPosition.right;
-      //   const differenceBottom = robotPosition.top - coinPosition.bottom;
-      // });
       const bulletPosition = bullet.getBoundingClientRect();
       const allMiniRobots = document.querySelectorAll('.mini-rbt');
 
@@ -238,32 +233,30 @@ const Robot = () => {
         const distanceBetween = miniRobotPosition.left - bulletPosition.right;
 
         if (crouched && distanceBetween < 25 && distanceBetween > -20) {
-          // debugger;
-          // miniRobot.className = ('mini-rbt darken obstacle-fall')
-          // if (miniRobot.classList.contains('mini-rbt--move-left')) {
-          //   miniRobot.classList.remove('mini-rbt--move-left')
-          // }
-          // if (miniRobot.classList.contains('mini-rbt--move-right')) {
-          //   miniRobot.classList.remove('mini-rbt--move-right')
-          // }
-          // miniRobot.style.animationPlayState = 'paused';
-          // miniRobot.classList.add('obstacle-fall', 'darken');
           const impactImageElem = document.createElement('img');
-          impactImageElem.src = impactGif;
-          if (!miniRobot.classList.contains('mini-robot-impact')) {
-            miniRobot.classList.add('mini-robot-impact');
-            miniRobot.appendChild(impactImageElem);
+          
+          
+          // if (!miniRobot.classList.contains('mini-robot-impact')) {
+          //   impactImageElem.src = impactGif;
+          //   // miniRobot.classList.add('mini-robot-impact');
+          //   miniRobot.appendChild(impactImageElem);
 
-            setTimeout(() => {
-              miniRobot.classList.remove('mini-robot-impact');
-              impactImageElem.parentNode.removeChild(impactImageElem);
-            }, 200);
-            // bullet.style.backgroundImage = `url(${impactGif})`;
-          }
+          //   setTimeout(() => {
+          //     // miniRobot.classList.remove('mini-robot-impact');
+          //     impactImageElem.parentNode.removeChild(impactImageElem);
+          //   }, 200);
+          // }
 
           // it will die if hit twice
           // we are gonna save number of times it is hit in it's className
-          if (!miniRobot.classList.contains('mini-rbt--hit1')) { // it means, it hasn't been shot yet
+          if (!miniRobot.classList.contains('mini-rbt--hit1')) { // it means, it hasn't been hit yet
+            impactImageElem.src = impactGif;
+            miniRobot.appendChild(impactImageElem);
+
+            setTimeout(() => {
+              impactImageElem.parentNode.removeChild(impactImageElem);
+            }, 200);
+
             miniRobot.classList.add('mini-rbt--hit1');
             const miniRbtLeft = miniRobot.style.left.split('px')[0];
             if (!miniRobot.classList.contains('mini-rbt--move-left')) {
@@ -273,21 +266,19 @@ const Robot = () => {
               miniRobot.style.left = `${parseInt(miniRbtLeft, 10) + 35}px`; // when it is hit, it moves back a little bit
             }
           }
-          else /* (miniRobot.classList.contains('mini-rbt--hit1')) */ { // it has already been shot once, so now it dies
+          else { // it has already been hit once, so now it dies
             miniRobot.classList.add('mini-robot-final-explosion', 'dead'); // HIT TWICE
+            impactImageElem.src = miniExplosion;
+            impactImageElem.className = 'mini-rbt-final-explosion';
+            miniRobot.appendChild(impactImageElem);
+
             // increse score
             score += 10;
             document.querySelector('.score').textContent = score;
 
-            if (miniRobot.classList.contains('mini-rbt--move-right')) { // it stops from moving
-              miniRobot.classList.remove('mini-rbt--move-right');
-            }
-            if (miniRobot.classList.contains('mini-rbt--move-left')) { // it stops from moving
-              miniRobot.classList.remove('mini-rbt--move-left');
-            }
             setTimeout(() => {
               miniRobot.parentNode.removeChild(miniRobot); // delete ennemy
-            }, 400);
+            }, 200);
           }
 
           bullet.classList.add('opacity0');
