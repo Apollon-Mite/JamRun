@@ -3,7 +3,7 @@ import React from 'react';
 import garbage from 'src/assets/images/trash_can.png';
 import miniRobotStop from 'src/assets/images/mini-robot-good.png';
 import coin from 'src/assets/images/coin.gif';
-
+import impactGif from 'src/assets/images/hit infinite.gif';
 // import nightCity from '../../assets/images/background.gif';
 import nightCity from '../../assets/images/night_city_combined.gif';
 import laboratory from '../../assets/images/labo_bg2.jpg';
@@ -54,7 +54,9 @@ const Field = () => (
       <div className="coin cn6" style={{ backgroundImage: `url(${coin})` }} />
 
 
-      <div className="obstacle obs1 mini-rbt mini-rbt--stop" style={{ left: '1050px' }} />
+      <div className="obstacle obs1 mini-rbt mini-rbt--stop" style={{ left: '850px' }}> {/* 1050 de base */}
+        {/* <img src={impactGif} /> */}
+      </div>
       <div className="obstacle obs2 mini-rbt mini-rbt--stop" style={{ left: '1900px' }} />
       <div className="obstacle obs7 mini-rbt mini-rbt--stop" style={{ left: '5400px' }} />
       <div className="obstacle obs8 mini-rbt mini-rbt--stop" style={{ left: '5700px' }} />

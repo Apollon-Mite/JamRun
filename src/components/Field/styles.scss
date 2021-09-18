@@ -82,6 +82,19 @@
   margin-top: -164px;
 }
 
+.mini-rbt {
+
+  & img {
+    position: absolute;
+    left: -35px;
+    top: -35px;
+    z-index: 999999;
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+  }
+}
+
 
 .mini-rbt--stop {
   -webkit-transform: translate3d(0, 0, 0);   /* Hey browser, use your GPU */

@@ -30,8 +30,9 @@ import fallRobotLeft from 'src/assets/images/robot_fall_left.gif';
 import miniRobotStop from 'src/assets/images/mini-robot-good.png';
 import glitter from 'src/assets/images/glitter.gif';
 import coinGif from 'src/assets/images/coin.gif';
-import laserAudio from 'src/assets/audio/laser_sound.mp3';
+import impactGif from 'src/assets/images/hit.gif';
 
+import laserAudio from 'src/assets/audio/laser_sound.mp3';
 import cityAudio from 'src/assets/audio/city-night-crowd.mp3';
 import coinCollectAudio from 'src/assets/audio/collect_coin.mp3';
 import explosionAudio from 'src/assets/audio/explosion.mp3';
@@ -247,17 +248,22 @@ const Robot = () => {
           // }
           // miniRobot.style.animationPlayState = 'paused';
           // miniRobot.classList.add('obstacle-fall', 'darken');
-
+          const impactImageElem = document.createElement('img');
+          impactImageElem.src = impactGif;
           if (!miniRobot.classList.contains('mini-robot-impact')) {
             miniRobot.classList.add('mini-robot-impact');
+            miniRobot.appendChild(impactImageElem);
+
             setTimeout(() => {
               miniRobot.classList.remove('mini-robot-impact');
-            }, 400);
+              impactImageElem.parentNode.removeChild(impactImageElem);
+            }, 200);
+            // bullet.style.backgroundImage = `url(${impactGif})`;
           }
 
           // it will die if hit twice
           // we are gonna save number of times it is hit in it's className
-          if (!miniRobot.classList.contains('mini-rbt--hit1')) {
+          if (!miniRobot.classList.contains('mini-rbt--hit1')) { // it means, it hasn't been shot yet
             miniRobot.classList.add('mini-rbt--hit1');
             const miniRbtLeft = miniRobot.style.left.split('px')[0];
             if (!miniRobot.classList.contains('mini-rbt--move-left')) {

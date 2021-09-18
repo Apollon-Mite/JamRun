@@ -109,7 +109,7 @@
   transform: scaleX(-1);
 }
 
-.robot-explode {
+.robot-explode { // my robot
   &::after {
     content: "";
     position: absolute;
@@ -139,11 +139,20 @@
     bottom: 0;
     // z-index: 20000;
     // background-image: url('../../assets/images/explosion.gif');
-    background-image: url('../../assets/images/hit.gif');
+    // background-image: url('../../assets/images/hit.gif');
     background-position: center;
     background-size: 80px 100px;
     background-repeat: no-repeat;
+    animation: background-impact 500ms forwards;
+  }
+}
 
+@keyframes background-impact {
+  from {
+    background-image: none;
+  }
+  to {
+    background-image: url('../../assets/images/hit.gif');
   }
 }
 
@@ -158,13 +167,22 @@
     bottom: -20px;
     // z-index: 20000;
     // background-image: url('../../assets/images/explosion.gif');
-    background-image: url('../../assets/images/mini-explosion.gif');
     background-position: center;
     background-size: 85px 105px;
     background-repeat: no-repeat;
-
+    animation: background-explode 500ms forwards;
   }
 }
+
+@keyframes background-explode {
+  from {
+    background-image: none;
+  }
+  to {
+    background-image: url('../../assets/images/mini-explosion.gif');
+  }
+}
+
 .darken {
   filter: brightness(0.3);
 }
